@@ -1,16 +1,16 @@
 import React from "react";
 import Gravatar from "react-gravatar";
 
-function Header() {
+function Header({ handleDarkMode, darkMode }) {
   const { nome, email } = JSON.parse(localStorage.getItem("userData"));
 
   return (
     <header>
-      <nav className="main-header navbar navbar-expand navbar-white navbar-light">
+      <nav className={`main-header navbar navbar-expand navbar-light ${darkMode ? 'bg-dark' : ''}`}>
         <ul className="navbar-nav">
           <li className="nav-item">
             <a
-              className="nav-link"
+              className={`nav-link ${darkMode ? 'text-white' : ''}`}
               data-widget="pushmenu"
               href="#"
               role="button"
@@ -19,16 +19,21 @@ function Header() {
             </a>
           </li>
           <li className="nav-item d-none d-sm-inline-block">
-            <a href="/home" className="nav-link">
+            <a href="/" className={`nav-link ${darkMode ? 'text-white' : ''}`}>
               Home
             </a>
           </li>
         </ul>
         <ul className="navbar-nav ml-auto">
+          <li className="nav-item" style={{ cursor: 'pointer' }} onClick={handleDarkMode}>
+            <span className={`nav-link ${darkMode ? 'text-white' : ''}`}>
+                <i className={`fas fa-${darkMode ? 'moon' : 'sun'} fa-lg`}></i>
+            </span>
+          </li>
           <li className="nav-item dropdown user user-menu">
             <a
               href="#"
-              className="nav-link dropdown-toggle"
+              className={`nav-link dropdown-toggle ${darkMode ? 'text-white' : ''}`}
               data-toggle="dropdown"
             >
               <Gravatar
@@ -51,12 +56,12 @@ function Header() {
               <li className="user-footer d-flex">
                 <div className="mr-auto">
                   <a className="btn btn-default" role="button">
-                    <i className="fas fa-cogs"></i>Configurações
+                    <i className="fas fa-cogs mr-2"></i>Configurações
                   </a>
                 </div>
                 <div>
                   <a className="btn btn-default" role="button">
-                    <i className="fas fa-sign-out-alt"></i>Logout
+                    <i className="fas fa-sign-out-alt mr-2"></i>Logout
                   </a>
                 </div>
               </li>

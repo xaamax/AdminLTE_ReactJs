@@ -1,30 +1,51 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./common/templates/Header";
 import Sidebar from "./common/templates/Sidebar";
 import Footer from "./common/templates/Footer";
+import Routes from "./routes/routes";
 
-const userData = {
-  nome: "Max Fernandes de Souza",
-  email: "xaamax@gmail.com",
-};
+function App({ children }) {
 
-function App(props) {
   const userData = {
     nome: "Max Fernandes de Souza",
     email: "xaamax@gmail.com",
   };
-  
+
+  const menuData = [
+    { header: "MENU", text: "Item", icon: "th" },
+    {
+      header: "MENU",
+      text: "Treeview",
+      icon: "bars",
+      childrens: [
+        { text: "Subitem", icon: "file" },
+        { text: "Subitem", icon: "copy" },
+      ],
+    },
+    {
+      header: "MENU",
+      text: "Treeview",
+      icon: "bars",
+      childrens: [{ text: "Subitem", icon: "file" }],
+    },
+    { header: "MENU", text: "Item", icon: "th" },
+  ];
+
   useEffect(() => {
     localStorage.setItem("userData", JSON.stringify(userData));
-  }, [])
-  
+    localStorage.setItem("menuData", JSON.stringify(menuData));
+  }, []);
+
+  const [darkMode, setDarkMode] = useState(false);
+
+  const handleDarkMode = () => setDarkMode(!darkMode);
 
   return (
-    <div className="wrapper">
-      <Header />
+    <div className={`wrapper ${darkMode ? "dark-mode" : ""}`}>
+      <Header handleDarkMode={handleDarkMode} darkMode={darkMode} />
       <Sidebar />
-      <div className="content-wrapper">{props.children}</div>
-      <Footer />
+      <Routes />
+      <Footer darkMode={darkMode} />
     </div>
   );
 }

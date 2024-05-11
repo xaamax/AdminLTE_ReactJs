@@ -4,7 +4,7 @@ import Logo from "../../assets/images/logoM.png";
 
 const SideBar = () => (
   <aside className="main-sidebar sidebar-dark-primary elevation-4">
-    <a href="/home" className="brand-link">
+    <a href="/" className="brand-link">
         <img
           src={Logo}
           alt="Logo Small"
@@ -22,7 +22,7 @@ const SideBar = () => (
           </>
           <>
             <i className="fa fa-money"></i>
-            ::. My <strong>App</strong> .::
+            My <strong>App</strong>
           </>
         </div>
       </span>

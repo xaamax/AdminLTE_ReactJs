@@ -1,13 +1,14 @@
-import React from 'react'
+import React from "react";
+import { Link } from "react-router-dom"
 
-export default props => (
-    <li className='treeview'> 
-        <a href={props.path}> 
-            <i className={`fa fa-${props.icon}`}></i> <span>{props.label}</span>
-            <i className='fa fa-angle-left pull-right'></i>
-        </a>
-        <ul className='treeview-menu'> 
-            {props.children}
+export default ({ path, icon, label, children }) => (
+    <li className="nav-item"> 
+        <Link to={path} className="nav-link"> 
+            <i className={`nav-icon fa fa-${icon}`}></i><p>{label}</p>
+            <i className="fas fa-angle-left right"></i>
+        </Link>
+        <ul className="nav nav-treeview"> 
+            {children}
         </ul>
     </li>
 )
