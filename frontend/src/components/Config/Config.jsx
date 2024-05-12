@@ -36,14 +36,22 @@ function Config() {
       setIsExpanded(!isExpanded);
     };
 
-    const [menuAtual, setMenuAtual] = useState([
-      {
-        headers: JSON.parse(localStorage.getItem("menuData")).map(
-          ({ key, header }) => ({ key, header })
-        ),
-        items: "",
-      },
-    ]);
+    const [menuAtual, setMenuAtual] = useState([]);
+    
+    const menuData = {
+      headers: JSON.parse(localStorage.getItem("menuData")).map(
+        ({ key, header }) => ({ key, header })
+      ),
+      items: "",
+    };
+
+    useEffect(() => {
+      preencherMenu(menuData);
+    },[])
+    
+    const preencherMenu = (menu) => (
+      setMenuAtual([menu])
+    )
 
     const handleChangeMenu = (keyID, item) => {
       const novoMenu = menuAtual.map((obj) => ({
@@ -75,25 +83,22 @@ function Config() {
               <div className="btn-group">
                 <button
                   type="button"
-                  className="btn btn-success btn-sm"
+                  className="btn btn-info btn-sm"
                   onClick={() => {
-                    const ultimoKey = menuAtual[0].headers[menuAtual[0].headers.length - 1].key;
+                    const ultimoKey =
+                      menuAtual[0].headers[menuAtual[0].headers.length - 1].key;
                     const novoHeader = { key: ultimoKey + 1, header: "" };
-                    setMenuAtual([{ headers: [...menuAtual[0].headers, novoHeader] }]);
+                    setMenuAtual([
+                      { headers: [...menuAtual[0].headers, novoHeader] },
+                    ]);
                   }}
                 >
                   <i className="fas fa-plus"></i>
                 </button>
                 <button
                   type="button"
-                  className="btn btn-warning btn-sm"
-                  onClick={() =>
-                    setMenuAtual(
-                      JSON.parse(localStorage.getItem("menuData")).map(
-                        ({ key, header }) => ({ headers: [{ key, header }] })
-                      )
-                    )
-                  }
+                  className="btn btn-secondary btn-sm"
+                  onClick={() =>  preencherMenu(menuData)}
                 >
                   <i className="fas fa-redo-alt"></i>
                 </button>
