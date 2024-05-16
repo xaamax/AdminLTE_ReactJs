@@ -3,45 +3,7 @@ import Header from "./common/templates/Header";
 import Sidebar from "./common/templates/Sidebar";
 import Footer from "./common/templates/Footer";
 import Routes from "./routes/routes";
-
-const userData = {
-  nome: "Max Fernandes de Souza",
-  email: "xaamax@gmail.com",
-};
-
-const menuData = [
-  {
-    header: "MENU",
-    items: [
-      { label: "Item 1", icon: "th" },
-      { label: "Item 2", icon: "th" },
-    ],
-  },
-  {
-    header: "MENU",
-    items: [
-      {
-        label: "Treeview",
-        icon: "bars",
-        childrens: [
-          { label: "Subitem", icon: "file" },
-          { label: "Subitem", icon: "copy" },
-        ],
-      },
-    ],
-  },
-  {
-    header: "MENU",
-    items: [
-      {
-        label: "Treeview",
-        icon: "bars",
-        childrens: [{ label: "Subitem", icon: "file" }],
-      },
-    ],
-  },
-  { header: "MENU", items: [{ label: "Item", icon: "th" }] },
-];
+import { userData, menuData } from "./common/constants/index";
 
 function App() {
   useEffect(() => {
@@ -49,10 +11,16 @@ function App() {
     localStorage.setItem(
       "menuData",
       JSON.stringify(
-        menuData.map((item, i) => ({
-          id: i+1,
-          ...item,
-          header: `${item.header} ${i + 1}`,
+        menuData.map((menu, i) => ({
+          id: i + 1,
+          ...menu,
+          header: `${menu.header} ${i + 1}`,
+          items: menu.items.map((item, itemIndex) => {
+            return {
+              id: itemIndex + 1,
+              ...item,
+            };
+          }),
         }))
       )
     );

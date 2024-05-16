@@ -9,6 +9,7 @@ export const InputLabel = ({
   inputClass,
   labelClass,
   onChange,
+  defaultValue
 }) => {
   return (
     <div>
@@ -18,6 +19,7 @@ export const InputLabel = ({
         className={`form-control ${inputClass || ""}`}
         placeholder={placeholder}
         onChange={onChange}
+        defaultValue={defaultValue}
         value={value}
         />
     </div>
