@@ -1,22 +1,31 @@
 import React, { useEffect, useState } from "react";
+import Grid from "../../layouts/Grid";
 
-//um hook personalizado, nomeie-o com "use" no início
-const useHandleInputChange = (value) => {
-  const [inputValue, setInputValue] = useState();
-
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
-
-  const handleInputValue = (event) => {
-    const { value } = event.target;
-    setInputValue(value);
-  };
-
-  return { inputValue, handleInputValue };
+export const InputLabel = ({
+  label,
+  type,
+  value,
+  placeholder,
+  inputClass,
+  labelClass,
+  onChange,
+}) => {
+  return (
+    <div>
+      <label className={labelClass}>{label}</label>
+      <input
+        type={type}
+        className={`form-control ${inputClass || ""}`}
+        placeholder={placeholder}
+        onChange={onChange}
+        value={value}
+        />
+    </div>
+  );
 };
 
 export const InputGroupAppend = ({
+  label,
   type,
   value,
   placeholder,
@@ -24,19 +33,19 @@ export const InputGroupAppend = ({
   append,
   icon,
   appendClass,
-  onClick
+  appendBtnClick,
+  onChange,
 }) => {
-  const { inputValue, handleInputValue } = useHandleInputChange(value);
-
   return (
-    <>
+    <div>
+      <label>{label}</label>
       <div className="input-group">
         <input
           type={type}
           className={`form-control ${inputClass || ""}`}
           placeholder={placeholder}
-          value={inputValue || ""}
-          onChange={handleInputValue}
+          onChange={onChange}
+          value={value}
         />
         <div className="input-group-append">
           {!append && (
@@ -44,11 +53,17 @@ export const InputGroupAppend = ({
               <i className={`fas fa-${icon}`}></i>
             </span>
           )}
-          {append === 'btn' && (
-            <button onClick={onClick} type="button" className={`btn ${appendClass}`}><i className={`fas fa-${icon}`}></i></button>
+          {append === "btn" && (
+            <button
+              onClick={appendBtnClick}
+              type="button"
+              className={`btn ${appendClass}`}
+            >
+              <i className={`fas fa-${icon}`}></i>
+            </button>
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };

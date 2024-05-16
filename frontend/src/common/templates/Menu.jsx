@@ -1,46 +1,40 @@
-import React from 'react';
-import MenuItem from './MenuItem';
-import MenuTree from './MenuTree';
+import React, { Children } from "react";
+import MenuItem from "./MenuItem";
+import MenuTree from "./MenuTree";
 
 const Menu = () => {
+  const itemsMenus = JSON.parse(localStorage.getItem("menuData"));
 
-  const itemsMenus = JSON.parse(localStorage.getItem('menuData'));
-
-  const MenuData = ({ header, text, icon, childrens, num }) => {
-    return (
-      <>
-        <li className='nav-header'>{header}</li>
-        {childrens && (
-          <MenuTree key={num} label={text} icon={icon}>
-            {childrens.map(({ text, icon }, idx) => (
-              <MenuItem key={idx} label={`${text} ${idx+1}`} icon={icon} />
-            ))}
-          </MenuTree>
-        )}
-        {!childrens && (
-            <MenuItem label={text} icon={icon} />
-        )}
-      </>
-    );
-  };
+  const MenuData = ({ header, items }) => (
+    <>
+      <li className="nav-header">{header}</li>
+      {items.map(({ label, icon, childrens }, idx) => {
+        return (
+          <React.Fragment key={idx}>
+          {childrens && (
+            <MenuTree label={label} icon={icon}>
+              {childrens.map(({ label, icon }, i) => (
+                <MenuItem key={i} label={label} icon={icon} />
+              ))}
+            </MenuTree>
+          )}
+          {!childrens && <MenuItem label={label} icon={icon} />}
+        </React.Fragment>
+        )
+      })}
+    </>
+  );
 
   return (
-    <nav className='mt-2'>
+    <nav className="mt-2">
       <ul
-        className='nav nav-pills nav-sidebar flex-column nav-child-indent'
-        data-widget='treeview'
-        role='menu'
-        collapse='false'
+        className="nav nav-pills nav-sidebar flex-column nav-child-indent"
+        data-widget="treeview"
+        role="menu"
+        collapse="false"
       >
-        {itemsMenus.map(({ header, text, icon, childrens }, key) => (
-          <MenuData
-            key={key}
-            num={key}
-            header={header}
-            text={text}
-            icon={icon}
-            childrens={childrens}
-          />
+        {itemsMenus.map(({ header, items }, key) => (
+          <MenuData key={key} header={header} items={items} />
         ))}
       </ul>
     </nav>

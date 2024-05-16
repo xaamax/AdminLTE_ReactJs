@@ -10,29 +10,52 @@ const userData = {
 };
 
 const menuData = [
-  { header: "MENU", text: "Item", icon: "th" },
   {
     header: "MENU",
-    text: "Treeview",
-    icon: "bars",
-    childrens: [
-      { text: "Subitem", icon: "file" },
-      { text: "Subitem", icon: "copy" },
+    items: [
+      { label: "Item 1", icon: "th" },
+      { label: "Item 2", icon: "th" },
     ],
   },
   {
     header: "MENU",
-    text: "Treeview",
-    icon: "bars",
-    childrens: [{ text: "Subitem", icon: "file" }],
+    items: [
+      {
+        label: "Treeview",
+        icon: "bars",
+        childrens: [
+          { label: "Subitem", icon: "file" },
+          { label: "Subitem", icon: "copy" },
+        ],
+      },
+    ],
   },
-  { header: "MENU", text: "Item", icon: "th" },
+  {
+    header: "MENU",
+    items: [
+      {
+        label: "Treeview",
+        icon: "bars",
+        childrens: [{ label: "Subitem", icon: "file" }],
+      },
+    ],
+  },
+  { header: "MENU", items: [{ label: "Item", icon: "th" }] },
 ];
 
 function App() {
   useEffect(() => {
     localStorage.setItem("userData", JSON.stringify(userData));
-    localStorage.setItem("menuData", JSON.stringify(menuData.map((item, i) => ({ key: i, ...item, header: `${item.header} ${i+1}` }))));
+    localStorage.setItem(
+      "menuData",
+      JSON.stringify(
+        menuData.map((item, i) => ({
+          id: i+1,
+          ...item,
+          header: `${item.header} ${i + 1}`,
+        }))
+      )
+    );
   }, []);
 
   const [darkMode, setDarkMode] = useState(false);

@@ -1,10 +1,8 @@
 import React from "react";
 
-function FormGroup({ children }) {
+function FormGroup({ formClass, children }) {
   return (
-    <form>
-      <div className="form-group">{children}</div>
-    </form>
+      <div className={`form-group ${formClass}`}>{children}</div>
   );
 }
 
