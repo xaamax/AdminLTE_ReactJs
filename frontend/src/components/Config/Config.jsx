@@ -12,6 +12,7 @@ import { Accordion, AccordionItem } from "../../common/layouts/Accordion";
 import Card from "../../common/layouts/Card";
 import { InputLabel } from "../../common/form/controls/Input";
 import FormGroup from "../../common/form/FormGroup";
+import { optionsEstiloMenu } from "../../common/constants/index";
 
 const tabsMenu = [
   { label: "Menu", icon: "th", target: "tabMenu", active: true },
@@ -45,90 +46,105 @@ function Config() {
       setMenuAtual(novoMenu);
     };
 
-    const [estiloMenu, setEstiloMenu] = useState(
-      menuAtual.map(({ id }) => ({
+    const [menuTabs, setMenuTabs] = useState({
+      menuId: "",
+      active: ""
+    });
+
+    const [tabsItensMenu, setTabItensMenu] = useState(
+      menuAtual.map(({ id, items }) => ({
         menuId: id,
-        checked: "item",
-        options: [{ label: "Item" }, { label: "Treeview" }],
-        tabActive: "tab-header",
         tabs: [
           { key: "header", label: "Header", target: "tab-header" },
           { key: "items", label: "Itens", target: "tab-items" },
+          ...(items.some((item) => item.style === "treeview")
+            ? [
+                {
+                  key: "childrens",
+                  label: "Childrens",
+                  target: "tab-childrens",
+                },
+              ]
+            : []),
         ],
       }))
     );
 
     useEffect(() => {
-      const alterarEstiloMenu = estiloMenu.map((checkbox) => {
-        const menu = menuAtual.find(({ id }) => id === checkbox.menuId);
-        const hasChildrens = menu.items.some((item) => item.childrens);
-        if (hasChildrens) {
-          return {
-            ...checkbox,
-            checked: "treeview",
-            tabs: [
-              ...checkbox.tabs,
-              { key: "childrens", label: "Childrens", target: "tab-childrens" },
-            ],
-          };
-        }
-        return checkbox;
-      });
+      const novasTabs = menuAtual.map(({ id, items }) => ({
+        menuId: id,
+        tabs: [
+          { key: "header", label: "Header", target: "tab-header" },
+          { key: "items", label: "Itens", target: "tab-items" },
+          ...(items.some((item) => item.style === "treeview") && !tabsItensMenu.some(tab => tab.target === 'tab-childrens')
+            ? [
+                {
+                  key: "childrens",
+                  label: "Childrens",
+                  target: "tab-childrens",
+                },
+              ]
+            : []),
+        ],
+      }));
 
-      setEstiloMenu(alterarEstiloMenu);
+      setTabItensMenu(novasTabs);
     }, [menuAtual]);
-
-    const handleAlterarEstiloMenu = (menuId, value) => {
-      setEstiloMenu((prevEstiloMenu) =>
-        prevEstiloMenu.map((checkbox) => {
-          if (checkbox.menuId === menuId) {
-            return {
-              ...checkbox,
-              checked: value,
-              tabs:
-                value === "treeview"
-                  ? [
-                      ...checkbox.tabs.filter((tab) => tab.key !== "childrens"),
-                      {
-                        key: "childrens",
-                        label: "Childrens",
-                        target: "tab-childrens",
-                      },
-                    ]
-                  : checkbox.tabs.filter((tab) => tab.key !== "childrens"),
-            };
-          }
-          return checkbox;
-        })
-      );
-    };
 
     const TabelaMenu = ({ menuId, items }) => {
       const fields = items
         .filter((field) => field !== "childrens")
         .map((item) => {
-          const { label, icon } = item;
+          const { label, style, icon } = item;
           return {
             ["#"]: item.id,
             label,
+            style,
             icon,
             actions: "",
           };
         });
 
       const [item, setItem] = useState({
-        // id:
-        //   menuAtual
-        //     .filter(({ id }) => id === menuId)
-        //     .reduce((acc, { items }) => {
-        //       return acc + items.length + 1;
-        //     }, 0),
         label: "",
+        style: "link",
         icon: "",
       });
 
-      const handleItem = (menuId, item) => {
-        const { id } = item;
+      const handleItem = (menuId, item, acao) => {
+        const idAC = menuAtual
+          .filter(({ id }) => id === menuId)
+          .reduce((acc, { items }) => {
+            return acc + items.length + 1;
+          }, 0);
+
+        const menuIndex = menuAtual.findIndex(
+          (menuItem) => menuItem.id === menuId
+        );
+        const newMenu = [...menuAtual];
+        const itemIndex = newMenu[menuIndex].items.findIndex(
+          (itemMenu) => itemMenu.id === item.id
+        );
+
+        switch (acao) {
+          case "editar":
+            newMenu[menuIndex].items.splice(itemIndex, 1, item);
+            setMenuAtual(newMenu);
+            break;
+          case "excluir":
+            newMenu[menuIndex].items.splice(itemIndex, 1);
+            setMenuAtual(newMenu);
+            break;
+          default:
+            setMenuAtual((prevMenu) =>
+              prevMenu.map((menu) =>
+                menu.id === menuId
+                  ? { ...menu, items: [...menu.items, { ...item, id: idAC }] }
+                  : menu
+              )
+            );
+            break;
+        }
       };
 
       return (
@@ -147,7 +163,6 @@ function Config() {
                     setItem((item) => {
                       return { ...item, label: value };
                     });
-                    // handleInputChange(menuId, "items.label", value);
                   }}
                 />
               </Grid>
@@ -163,7 +178,6 @@ function Config() {
                     setItem((item) => {
                       return { ...item, icon: value };
                     });
-                    // handleInputChange(menuId, "items.icon", value);
                   }}
                 />
               </Grid>
@@ -171,52 +185,59 @@ function Config() {
           </FormGroup>
           <div className="d-flex flex-wrap">
             <div>
-              <label>Estilo do menu</label>
+              <label>Estilo</label>
               <div className="d-flex flex-wrap">
-                {estiloMenu
-                  .filter(menu => menu.menuId === menuId)
-                  .map(({ options, checked }) => (
-                    <React.Fragment key={menuId}>
-                      {options.map(({ label }, index) => (
-                        <div key={index} className="form-check mr-3 mb-2">
-                          <input
-                            type="radio"
-                            className="form-check-input"
-                            value={label.toLowerCase()}
-                            checked={checked === label.toLowerCase()}
-                            style={{
-                              cursor: "pointer",
-                            }}
-                            onChange={(e) => {
-                              const { value } = e.target;
-                              setEstiloMenu((checkbox) =>
-                                checkbox.map((cb) =>
-                                  cb.menuId === menuId
-                                    ? {
-                                        ...cb,
-                                        checked: value,
-                                      }
-                                    : cb
-                                )
-                              );
-                              handleAlterarEstiloMenu(menuId, value);
-                            }}
-                          />
-                          <label className="form-check-label">{label}</label>
-                        </div>
-                      ))}
-                    </React.Fragment>
-                  ))}
+                {optionsEstiloMenu.map(({ label, value }, index) => (
+                  <div key={index} className="form-check mr-3 mb-2">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      value={value}
+                      checked={item.style === value}
+                      style={{
+                        cursor: "pointer",
+                      }}
+                      onChange={(e) => {
+                        const { value } = e.target;
+                        setItem((item) => {
+                          return { ...item, style: value };
+                        });
+                      }}
+                    />
+                    <label className="form-check-label">{label}</label>
+                  </div>
+                ))}
               </div>
             </div>
             <div className="ml-auto mt-4">
-              <button className="btn btn-primary btn-sm">
-                <i className="fas fa-plus mr-2"></i>Incluir item
-              </button>
+              <div className="btn-group">
+                <button
+                  className="btn btn-info btn-sm"
+                  onClick={() =>
+                    handleItem(menuId, item, item.id ? "editar" : "incluir")
+                  }
+                  disabled={!item.label || !item.icon}
+                >
+                  <i className={`fas fa-${item.id ? "save" : "plus"} mr-2`}></i>
+                  {item.id ? "Salvar" : "Incluir"}
+                </button>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() =>
+                    setItem({
+                      label: "",
+                      style: "link",
+                      icon: "",
+                    })
+                  }
+                >
+                  <i className="fas fa-eraser mr-2"></i>Limpar
+                </button>
+              </div>
             </div>
           </div>
           <hr />
-          <table className="table table-striped table-bordered">
+          <table className="table table-striped table-bordered text-center">
             <thead className="table-header bg-secondary">
               <tr>
                 {Object.keys(fields[0])
@@ -234,15 +255,28 @@ function Config() {
                     .map((field, index) => (
                       <td key={index}>{item[field]}</td>
                     ))}
-                  <td className="text-center align-middle">
+                  <td className="align-middle">
                     <div className="btn-group">
                       <button
                         className="btn btn-sm btn-warning"
-                        onClick={() => setItem(item)}
+                        onClick={() => {
+                          setItem(item);
+                        }}
                       >
                         <i className="fas fa-edit"></i>
                       </button>
-                      <button className="btn btn-sm btn-danger">
+                      <button
+                        className="btn btn-sm btn-danger"
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "Tem certeza que deseja remover o item?"
+                            )
+                          ) {
+                            handleItem(menuId, item, "excluir");
+                          }
+                        }}
+                      >
                         <i className="fas fa-trash"></i>
                       </button>
                     </div>
@@ -282,12 +316,20 @@ function Config() {
           </button>
         </div>
         <hr />
-        <div>{JSON.stringify(menuAtual)}</div>
         <Accordion>
           {menuAtual.map(({ id, header, items }) => (
-            <AccordionItem key={id} title={`Menu ${id}`}>
+            <AccordionItem
+              key={id}
+              title={`Menu ${id}`}
+              onClickAccordionItem={() => {
+                setMenuTabs(({ menuId, active }) => ({
+                  menuId: id,
+                  active: menuId === id ? active : "tab-header",
+                }));
+              }}
+            >
               <Card
-                cardClass="card-primary card-outline"
+                cardClass="card-secondary card-outline"
                 header="Editar"
                 icon="edit"
               >
@@ -298,45 +340,42 @@ function Config() {
                       role="tablist"
                       aria-orientation="vertical"
                     >
-                      {estiloMenu
+                      {tabsItensMenu
                         .filter(({ menuId }) => menuId === id)
-                        .map(({ tabActive, tabs }) =>
-                          tabs.map(({ label, target }, index) => {
-                            return (
-                              <React.Fragment key={index}>
-                                <a
-                                  className={`nav-link ${
-                                    tabActive === target ? "active" : ""
-                                  }`}
-                                  data-toggle="pill"
-                                  href={`#${target}`}
-                                  role="tab"
-                                  aria-selected="true"
-                                  onClick={() => {
-                                    setEstiloMenu((prevTabs) =>
-                                      prevTabs.map((tabs) => {
-                                        return { ...tabs, tabActive: target };
-                                      })
-                                    );
-                                  }}
-                                >
-                                  {label}
-                                </a>
-                              </React.Fragment>
-                            );
-                          })
+                        .map(({ tabs }) =>
+                          tabs.map(({ target, label }, i) => (
+                            <div key={i}>
+                              <a
+                                className={`nav-link ${
+                                  menuTabs.active === target ? "active" : ""
+                                }`}
+                                data-toggle="pill"
+                                href={`#${target}`}
+                                role="tab"
+                                aria-selected="true"
+                                onClick={() => {
+                                  setMenuTabs((prev) => ({
+                                    ...prev,
+                                    active: target,
+                                  }));
+                                }}
+                              >
+                                {label}
+                              </a>
+                            </div>
+                          ))
                         )}
                     </div>
                   </Grid>
                   <Grid cols="12 7 9">
-                    {estiloMenu
+                    {tabsItensMenu
                       .filter(({ menuId }) => menuId === id)
-                      .map(({ tabActive, tabs }) =>
+                      .map(({ tabs }) =>
                         tabs.map(({ target }, i) => (
                           <div key={i} className="tab-content" id={target}>
                             <div
                               className={`tab-pane p-2 text-left fade ${
-                                target === tabActive ? "show active" : ""
+                                target === menuTabs.active ? "show active" : ""
                               }`}
                               id={target}
                               role="tabpanel"
@@ -364,9 +403,11 @@ function Config() {
                                                     menu;
                                                   return rest;
                                                 } else {
+                                                  const { id } = menu;
                                                   return {
-                                                    ...menu,
+                                                    id,
                                                     header: "",
+                                                    ...menu,
                                                   };
                                                 }
                                               })

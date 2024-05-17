@@ -7,19 +7,20 @@ export const menuData = [
     {
         header: "MENU",
         items: [
-            { label: "Item 1", icon: "th" },
-            { label: "Item 2", icon: "th" },
+            { label: "Link 1", style: "link", icon: "th" },
+            { label: "Link 2", style: "link", icon: "th" },
         ],
     },
     {
         header: "MENU",
         items: [
             {
-                label: "Treeview",
+                label: "Treeview 1",
                 icon: "bars",
+                style: "treeview",
                 childrens: [
-                    { label: "Subitem", icon: "file" },
-                    { label: "Subitem", icon: "copy" },
+                    { label: "Link 3", icon: "file" },
+                    { label: "Link 4", icon: "copy" },
                 ],
             },
         ],
@@ -28,10 +29,17 @@ export const menuData = [
         header: "MENU",
         items: [
             {
-                label: "Treeview",
+                label: "Treeview 2",
                 icon: "bars",
-                childrens: [{ label: "Subitem", icon: "file" }],
+                style: "treeview",
+                childrens: [{ label: "Link 5", icon: "file" }],
             },
         ],
     },
-    { header: "MENU", items: [{ label: "Item", icon: "th" }] }]
+    { header: "MENU", items: [{ label: "Link 6", style: "link", icon: "th" }] }]
+
+
+export const optionsEstiloMenu = [
+    { label: "MenuLink", value: "link" },
+    { label: "MenuTreeview", value: "treeview" },
+]

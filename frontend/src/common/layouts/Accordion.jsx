@@ -10,11 +10,12 @@ export const Accordion = ({ children }) => {
   );
 };
 
-export const AccordionItem = ({ title, children }) => {
+export const AccordionItem = ({ title, children, onClickAccordionItem }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleAccordion = () => {
     setIsExpanded(!isExpanded);
+    onClickAccordionItem();
   };
 
   return (
