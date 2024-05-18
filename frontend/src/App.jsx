@@ -19,6 +19,14 @@ function App() {
             return {
               id: itemIndex + 1,
               ...item,
+              childrens: item.childrens
+              ? item.childrens.map((children, childrenIndex) => {
+                return {
+                  id: childrenIndex + 1,
+                  ...children,
+                };
+              })
+              : [],
             };
           }),
         }))

@@ -48,7 +48,7 @@ function Config() {
 
     const [menuTabs, setMenuTabs] = useState({
       menuId: "",
-      active: ""
+      active: "",
     });
 
     const [tabsItensMenu, setTabItensMenu] = useState(
@@ -76,7 +76,8 @@ function Config() {
         tabs: [
           { key: "header", label: "Header", target: "tab-header" },
           { key: "items", label: "Itens", target: "tab-items" },
-          ...(items.some((item) => item.style === "treeview") && !tabsItensMenu.some(tab => tab.target === 'tab-childrens')
+          ...(items.some((item) => item.style === "treeview") &&
+          !tabsItensMenu.some((tab) => tab.target === "tab-childrens")
             ? [
                 {
                   key: "childrens",
@@ -95,9 +96,9 @@ function Config() {
       const fields = items
         .filter((field) => field !== "childrens")
         .map((item) => {
-          const { label, style, icon } = item;
+          const { id, label, style, icon } = item;
           return {
-            ["#"]: item.id,
+            ["#"]: id,
             label,
             style,
             icon,
@@ -109,7 +110,23 @@ function Config() {
         label: "",
         style: "link",
         icon: "",
+        childrens: [],
       });
+
+      const [childrens, setChildrens] = useState([]);
+
+      const handleChildrens = (menuId, itemId) => {
+        const itemsChildrens = menuAtual.reduce((acc, cur) => {
+          if (cur.id === menuId) {
+            const menuItem = cur.items.find((menu) => menu.id === itemId);
+            if (menuItem) {
+              acc = menuItem.childrens;
+            }
+          }
+          return acc;
+        }, []);
+        setChildrens(itemsChildrens);
+      };
 
       const handleItem = (menuId, item, acao) => {
         const idAC = menuAtual
@@ -147,120 +164,25 @@ function Config() {
         }
       };
 
-      return (
-        <div>
-          <FormGroup>
-            <Row>
-              <Grid cols="12 6">
-                <InputLabel
-                  label="Label"
-                  type="text"
-                  inputClass="form-control-sm"
-                  placeholder="Informe o label"
-                  value={item.label}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    setItem((item) => {
-                      return { ...item, label: value };
-                    });
-                  }}
-                />
-              </Grid>
-              <Grid cols="12 6">
-                <InputLabel
-                  label="Icon"
-                  type="text"
-                  inputClass="form-control-sm"
-                  placeholder="Informe o icon"
-                  value={item.icon}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    setItem((item) => {
-                      return { ...item, icon: value };
-                    });
-                  }}
-                />
-              </Grid>
-            </Row>
-          </FormGroup>
-          <div className="d-flex flex-wrap">
-            <div>
-              <label>Estilo</label>
-              <div className="d-flex flex-wrap">
-                {optionsEstiloMenu.map(({ label, value }, index) => (
-                  <div key={index} className="form-check mr-3 mb-2">
-                    <input
-                      type="radio"
-                      className="form-check-input"
-                      value={value}
-                      checked={item.style === value}
-                      style={{
-                        cursor: "pointer",
-                      }}
-                      onChange={(e) => {
-                        const { value } = e.target;
-                        setItem((item) => {
-                          return { ...item, style: value };
-                        });
-                      }}
-                    />
-                    <label className="form-check-label">{label}</label>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="ml-auto mt-4">
-              <div className="btn-group">
-                <button
-                  className="btn btn-info btn-sm"
-                  onClick={() =>
-                    handleItem(menuId, item, item.id ? "editar" : "incluir")
-                  }
-                  disabled={!item.label || !item.icon}
-                >
-                  <i className={`fas fa-${item.id ? "save" : "plus"} mr-2`}></i>
-                  {item.id ? "Salvar" : "Incluir"}
-                </button>
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={() =>
-                    setItem({
-                      label: "",
-                      style: "link",
-                      icon: "",
-                    })
-                  }
-                >
-                  <i className="fas fa-eraser mr-2"></i>Limpar
-                </button>
-              </div>
-            </div>
-          </div>
-          <hr />
-          <table className="table table-striped table-bordered text-center">
-            <thead className="table-header bg-secondary">
-              <tr>
-                {Object.keys(fields[0])
-                  .filter((field) => field !== "childrens")
-                  .map((field, index) => (
-                    <th key={index}>{field}</th>
-                  ))}
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, index) => (
+      const RowsTable = () => {
+        let rows = menuTabs.active === "tab-childrens" ? childrens : items;
+
+        if(rows.length)
+          return (
+            <>
+              {rows.map((row, index) => (
                 <tr key={index}>
                   {Object.keys(items[0])
                     .filter((field) => field !== "childrens")
                     .map((field, index) => (
-                      <td key={index}>{item[field]}</td>
+                      <td key={index}>{row[field]}</td>
                     ))}
                   <td className="align-middle">
                     <div className="btn-group">
                       <button
                         className="btn btn-sm btn-warning"
                         onClick={() => {
-                          setItem(item);
+                          setItem(row);
                         }}
                       >
                         <i className="fas fa-edit"></i>
@@ -273,7 +195,7 @@ function Config() {
                               "Tem certeza que deseja remover o item?"
                             )
                           ) {
-                            handleItem(menuId, item, "excluir");
+                            handleItem(menuId, row, "excluir");
                           }
                         }}
                       >
@@ -283,8 +205,152 @@ function Config() {
                   </td>
                 </tr>
               ))}
-            </tbody>
-          </table>
+            </>
+          );
+      };
+
+      return (
+        <div>
+          <FormGroup>
+            {menuTabs.active === "tab-childrens" && (
+              <FormGroup>
+                <label>Item</label>
+                <select
+                  className="form-control form-control-sm"
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    handleChildrens(menuId, +value);
+                  }}
+                >
+                  <option value="">-- Selecione --</option>
+                  {menuAtual
+                    .filter(({ id }) => id === menuId)
+                    .map((menu) =>
+                      menu.items.map(({ label, id }, i) => (
+                        <option key={i} value={+id}>
+                          {label}
+                        </option>
+                      ))
+                    )}
+                </select>
+              </FormGroup>
+            )}
+            {(menuTabs.active === "tab-items" ||
+              menuTabs.active === "tab-childrens") && (
+              <Row>
+                <Grid cols="12 6">
+                  <InputLabel
+                    label="Label"
+                    type="text"
+                    inputClass="form-control-sm"
+                    placeholder="Informe o label"
+                    value={item.label}
+                    onChange={(e) => {
+                      const { value } = e.target;
+                      setItem((item) => {
+                        return { ...item, label: value };
+                      });
+                    }}
+                  />
+                </Grid>
+                <Grid cols="12 6">
+                  <InputLabel
+                    label="Icon"
+                    type="text"
+                    inputClass="form-control-sm"
+                    placeholder="Informe o icon"
+                    value={item.icon}
+                    onChange={(e) => {
+                      const { value } = e.target;
+                      setItem((item) => {
+                        return { ...item, icon: value };
+                      });
+                    }}
+                  />
+                </Grid>
+              </Row>
+            )}
+          </FormGroup>
+          <div className="d-flex flex-wrap">
+            {menuTabs.active === "tab-items" && (
+              <div>
+                <label>Estilo</label>
+                <div className="d-flex flex-wrap">
+                  {optionsEstiloMenu.map(({ label, value }, index) => (
+                    <div key={index} className="form-check mr-3 mb-2">
+                      <input
+                        type="radio"
+                        className="form-check-input"
+                        value={value}
+                        checked={item.style === value}
+                        style={{
+                          cursor: "pointer",
+                        }}
+                        onChange={(e) => {
+                          const { value } = e.target;
+                          setItem((item) => {
+                            return { ...item, style: value };
+                          });
+                        }}
+                      />
+                      <label className="form-check-label">{label}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            {menuTabs.active !== "tab-header" && (
+              <div className="ml-auto mt-4">
+                <div className="btn-group">
+                  <button
+                    className="btn btn-info btn-sm"
+                    onClick={() =>
+                      handleItem(menuId, item, item.id ? "editar" : "incluir")
+                    }
+                    disabled={!item.label || !item.icon}
+                  >
+                    <i
+                      className={`fas fa-${item.id ? "save" : "plus"} mr-2`}
+                    ></i>
+                    {item.id ? "Salvar" : "Incluir"}
+                  </button>
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() =>
+                      setItem({
+                        label: "",
+                        style: "link",
+                        icon: "",
+                      })
+                    }
+                    disabled={!item.label && !item.icon}
+                  >
+                    <i className="fas fa-eraser mr-2"></i>Limpar
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+          {((menuTabs.active === "tab-items") ||
+            (menuTabs.active === "tab-childrens" && childrens.length > 0)) && (
+            <>
+              <hr />
+              <table className="table table-striped table-bordered text-center">
+                <thead className="table-header bg-secondary">
+                  <tr>
+                    {Object.keys(fields[0])
+                      .filter((field) => field !== "childrens")
+                      .map((field, index) => (
+                        <th key={index}>{field}</th>
+                      ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  <RowsTable />
+                </tbody>
+              </table>
+            </>
+          )}
         </div>
       );
     };
@@ -449,53 +515,11 @@ function Config() {
                                   )}
                                 </div>
                               )}
-                              {target === "tab-items" && (
-                                <Row>
-                                  <Grid cols="12 12">
-                                    <TabelaMenu {...{ menuId: id, items }} />
-                                  </Grid>
-                                </Row>
-                              )}
-                              {tabActive === "tab-childrens" && (
-                                <Row>
-                                  <Grid cols="12 12">
-                                    <table className="table table-striped table-bordered">
-                                      <thead className="table-header bg-secondary">
-                                        <tr>
-                                          {Object.keys(items[0])
-                                            .filter(
-                                              (field) => field !== "childrens"
-                                            )
-                                            .map((field, index) => (
-                                              <th key={index}>
-                                                {field.toUpperCase()}
-                                              </th>
-                                            ))}
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        {items[0].childrens && (
-                                          <React.Fragment>
-                                            {items[0].childrens.map(
-                                              (item, index) => (
-                                                <tr key={index}>
-                                                  {Object.keys(item).map(
-                                                    (field, index) => (
-                                                      <td key={index}>
-                                                        {item[field]}
-                                                      </td>
-                                                    )
-                                                  )}
-                                                </tr>
-                                              )
-                                            )}
-                                          </React.Fragment>
-                                        )}
-                                      </tbody>
-                                    </table>
-                                  </Grid>
-                                </Row>
-                              )}
+                              <Row>
+                                <Grid cols="12 12">
+                                  <TabelaMenu {...{ menuId: id, items }} />
+                                </Grid> 
+                              </Row>
                             </div>
                           </div>
                         ))
