@@ -8,8 +8,8 @@ export const menuDefault = [
         id: 1,
         header: "MENU",
         items: [
-            { id: 1, label: "Link 1", style: "link", icon: "th", childrens: [] },
-            { id: 2, label: "Link 2", style: "link", icon: "th", childrens: [] },
+            { id: 1, label: "Link 1", style: "link", icon: "th", visible: true, order: 1, route: "/", childrens: [] },
+            { id: 2, label: "Link 2", style: "link", icon: "th", visible: true, order: 2, route: "/", childrens: [] },
         ],
     },
     {
@@ -21,9 +21,11 @@ export const menuDefault = [
                 label: "Treeview 1",
                 icon: "bars",
                 style: "treeview",
+                visible: true, 
+                order: 1,
                 childrens: [
-                    { id: 1, label: "Link 3", style: "link", icon: "file" },
-                    { id: 2, label: "Link 4", style: "link", icon: "copy" },
+                    { id: 1, label: "Link 3", style: "link", icon: "file", visible: true, order: 1, route: "/" },
+                    { id: 2, label: "Link 4", style: "link", icon: "copy", visible: true, order: 1, route: "/" },
                 ],
             },
         ],

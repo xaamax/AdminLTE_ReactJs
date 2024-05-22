@@ -9,18 +9,15 @@ export const InputLabel = ({
   inputClass,
   labelClass,
   onChange,
-  defaultValue
+  defaultValue,
+  disabled
 }) => {
   return (
     <div>
       <label className={labelClass}>{label}</label>
       <input
-        type={type}
         className={`form-control ${inputClass || ""}`}
-        placeholder={placeholder}
-        onChange={onChange}
-        defaultValue={defaultValue}
-        value={value}
+        {...{ type, value, placeholder, onChange, defaultValue, disabled }}
         />
     </div>
   );

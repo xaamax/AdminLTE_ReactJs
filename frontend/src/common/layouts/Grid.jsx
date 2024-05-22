@@ -12,10 +12,10 @@ const toCssClasses = (numbers) => {
   return classes;
 };
 
-function Grid({ cols, children }) {
+function Grid({ cols, classGrid, children }) {
 
   const gridClasses = toCssClasses(cols || "12");
-  return <div className={gridClasses}>{children}</div>;
+  return <div className={`${gridClasses}${classGrid ?? ""}`}>{children}</div>;
 }
 
 export default Grid;

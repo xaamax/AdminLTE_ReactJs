@@ -4,7 +4,7 @@ import Row from './Row'
 import Grid from './Grid'
 
 const ContentHeader = ({ title, subtitle, backPage, breadCrumbText }) => (
-  <div className="content-header">
+  <section className="content-header">
     <Row>
       <Grid cols='12 6'>
         <h1>{title}</h1>
@@ -22,7 +22,7 @@ const ContentHeader = ({ title, subtitle, backPage, breadCrumbText }) => (
         </a>
       </div>
     )}
-  </div>
+  </section>
 );
 
 export default ContentHeader;

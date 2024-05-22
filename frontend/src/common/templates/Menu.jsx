@@ -8,17 +8,17 @@ const Menu = () => {
   const MenuData = ({ header, items }) => (
     <>
       <li className="nav-header">{header}</li>
-      {items.map(({ label, icon, childrens }, idx) => {
+      {items.filter(({ visible }) => visible).map(({ label, icon, route, childrens }, idx) => {
         return (
           <React.Fragment key={idx}>
           {childrens.length > 0 && (
             <MenuTree label={label} icon={icon}>
-              {childrens.map(({ label, icon }, i) => (
-                <MenuItem key={i} label={label} icon={icon} />
+              {childrens.filter(({ visible }) => visible).map(({ label, icon, route }, i) => (
+                <MenuItem key={i} {...{ label, icon, route }} />
               ))}
             </MenuTree>
           )}
-          {!childrens.length && <MenuItem label={label} icon={icon} />}
+          {!childrens.length && <MenuItem {...{label, icon, route }} />}
         </React.Fragment>
         )
       })}

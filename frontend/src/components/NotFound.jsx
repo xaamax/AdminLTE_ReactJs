@@ -14,7 +14,7 @@ function NotFound() {
         Página não encontrada!
       </h1>
       <p>
-        <a href='/home'>Voltar ao Home.</a>
+        <a href='/'>Voltar ao Home.</a>
       </p>
     </Content>
   );

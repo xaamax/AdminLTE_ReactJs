@@ -1,11 +1,11 @@
 import React from "react";
 
 const Content = ({ contentClass, children }) => (
-  <div className="content-wrapper">
+  <section className="content-wrapper">
     <div className={contentClass}>
     {children}
     </div>
-  </div>
+  </section>
 );
 
 export default Content;
