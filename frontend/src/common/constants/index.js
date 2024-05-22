@@ -3,40 +3,31 @@ export const userData = {
     email: "xaamax@gmail.com",
 };
 
-export const menuData = [
+export const menuDefault = [
     {
+        id: 1,
         header: "MENU",
         items: [
-            { label: "Link 1", style: "link", icon: "th" },
-            { label: "Link 2", style: "link", icon: "th" },
+            { id: 1, label: "Link 1", style: "link", icon: "th", childrens: [] },
+            { id: 2, label: "Link 2", style: "link", icon: "th", childrens: [] },
         ],
     },
     {
+        id: 2,
         header: "MENU",
         items: [
             {
+                id: 1,
                 label: "Treeview 1",
                 icon: "bars",
                 style: "treeview",
                 childrens: [
-                    { label: "Link 3", style: "link", icon: "file" },
-                    { label: "Link 4", style: "link", icon: "copy" },
+                    { id: 1, label: "Link 3", style: "link", icon: "file" },
+                    { id: 2, label: "Link 4", style: "link", icon: "copy" },
                 ],
             },
         ],
-    },
-    {
-        header: "MENU",
-        items: [
-            {
-                label: "Treeview 2",
-                icon: "bars",
-                style: "treeview",
-                childrens: [{ label: "Link 5", style: "link", icon: "file" }],
-            },
-        ],
-    },
-    { header: "MENU", items: [{ label: "Link 6", style: "link", icon: "th" }] }]
+    }]
 
 
 export const optionsEstiloMenu = [

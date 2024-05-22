@@ -11,14 +11,14 @@ const Menu = () => {
       {items.map(({ label, icon, childrens }, idx) => {
         return (
           <React.Fragment key={idx}>
-          {childrens && (
+          {childrens.length > 0 && (
             <MenuTree label={label} icon={icon}>
               {childrens.map(({ label, icon }, i) => (
                 <MenuItem key={i} label={label} icon={icon} />
               ))}
             </MenuTree>
           )}
-          {!childrens && <MenuItem label={label} icon={icon} />}
+          {!childrens.length && <MenuItem label={label} icon={icon} />}
         </React.Fragment>
         )
       })}

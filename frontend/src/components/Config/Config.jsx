@@ -13,6 +13,7 @@ import Card from "../../common/layouts/Card";
 import { InputLabel } from "../../common/form/controls/Input";
 import FormGroup from "../../common/form/FormGroup";
 import { optionsEstiloMenu } from "../../common/constants/index";
+import { menuDefault } from "../../common/constants/index";
 
 const tabsMenu = [
   { label: "Menu", icon: "th", target: "tabMenu", active: true },
@@ -29,7 +30,7 @@ function Config() {
   const handleTabSelect = (tab) =>
     tabsMenu.filter(({ target, active }) => {
       if (target === tab) active = !active;
-      setTabActive(tab);
+      return setTabActive(tab);
     });
 
   const TabMenu = () => {
@@ -39,7 +40,7 @@ function Config() {
     const handleInputChange = (menuId, field, value) => {
       const novoMenu = menuAtual.map((menu) => {
         if (menu.id === menuId) {
-          return { ...menu, [field]: value };
+          return { ...menu, [field]: value.toUpperCase() };
         }
         return { ...menu };
       });
@@ -86,6 +87,11 @@ function Config() {
                 },
               ]
             : []),
+          {
+            key: "excluirMenu",
+            label: "Excluir menu",
+            target: "tab-excluir-menu",
+          },
         ],
       }));
 
@@ -113,8 +119,6 @@ function Config() {
         childrens: [],
       });
 
-      const [childrens, setChildrens] = useState([]);
-
       const handleChildrens = (menuId, itemId) => {
         const itemsChildrens = menuAtual.reduce((acc, cur) => {
           if (cur.id === menuId) {
@@ -125,88 +129,163 @@ function Config() {
           }
           return acc;
         }, []);
-        setChildrens(itemsChildrens);
+
+        setItem((prevItem) => {
+          if (itemId === 0) {
+            const { belongTreeview, ...rest } = prevItem;
+            return rest;
+          } else {
+            return {
+              ...prevItem,
+              childrens: itemsChildrens,
+              belongTreeview: itemId,
+            };
+          }
+        });
       };
 
-      const handleItem = (menuId, item, acao) => {
-        const idAC = menuAtual
+      const handleItem = (menuId, itemData, acao) => {
+        const idNovo = menuAtual
           .filter(({ id }) => id === menuId)
           .reduce((acc, { items }) => {
             return acc + items.length + 1;
           }, 0);
 
-        const menuIndex = menuAtual.findIndex(
-          (menuItem) => menuItem.id === menuId
+        const itemId = item.belongTreeview ?? itemData.id;
+
+        const novoMenu = [...menuAtual];
+        const menuIndex = novoMenu.findIndex(({ id }) => id === menuId);
+        const itemIndex = novoMenu[menuIndex].items.findIndex(
+          ({ id }) => id === itemId
         );
-        const newMenu = [...menuAtual];
-        const itemIndex = newMenu[menuIndex].items.findIndex(
-          (itemMenu) => itemMenu.id === item.id
-        );
+        const childIndex =
+          menuTabs.active === "tab-childrens"
+            ? novoMenu[menuIndex].items[itemIndex].childrens.findIndex(
+                ({ id }) => id === itemData.id
+              )
+            : "";
 
         switch (acao) {
           case "editar":
-            newMenu[menuIndex].items.splice(itemIndex, 1, item);
-            setMenuAtual(newMenu);
+            setMenuAtual(() => {
+              if (item.belongTreeview) {
+                const updatedChild = {
+                  ...novoMenu[menuIndex].items[itemIndex].childrens[childIndex],
+                  label: itemData.label,
+                  icon: itemData.icon,
+                };
+
+                novoMenu[menuIndex].items[itemIndex].childrens.splice(
+                  childIndex,
+                  1,
+                  updatedChild
+                );
+              } else {
+                novoMenu[menuIndex].items.splice(itemIndex, 1, item);
+              }
+
+              return novoMenu;
+            });
             break;
           case "excluir":
-            newMenu[menuIndex].items.splice(itemIndex, 1);
-            setMenuAtual(newMenu);
+            item.belongTreeview
+              ? novoMenu[menuIndex].items[itemIndex].childrens.splice(
+                  childIndex,
+                  1
+                )
+              : novoMenu[menuIndex].items.splice(itemIndex, 1);
+            setMenuAtual(novoMenu);
             break;
           default:
             setMenuAtual((prevMenu) =>
-              prevMenu.map((menu) =>
-                menu.id === menuId
-                  ? { ...menu, items: [...menu.items, { ...item, id: idAC }] }
-                  : menu
-              )
+              prevMenu.map((menu) => {
+                if (item.belongTreeview)
+                  return {
+                    ...menu,
+                    items: menu.items.map((menuItems) => {
+                      if (menuItems.id === itemId) {
+                        const novoIdChild =
+                          menuItems.childrens.length > 0
+                            ? menuItems.childrens[
+                                menuItems.childrens.length - 1
+                              ].id
+                            : 0;
+
+                        const novoItem = {
+                          id: novoIdChild + 1,
+                          label: itemData.label,
+                          icon: itemData.icon,
+                          style: "link",
+                        };
+
+                        return {
+                          ...menuItems,
+                          childrens: [...menuItems.childrens, novoItem],
+                        };
+                      }
+                      return menuItems;
+                    }),
+                  };
+                else
+                  return menu.id === menuId
+                    ? {
+                        ...menu,
+                        items: [...menu.items, { id: idNovo, ...itemData }],
+                      }
+                    : menu;
+              })
             );
             break;
         }
       };
 
       const RowsTable = () => {
-        let rows = menuTabs.active === "tab-childrens" ? childrens : items;
+        let rows = menuTabs.active === "tab-childrens" ? item.childrens : items;
 
-        if(rows.length)
-          return (
-            <>
-              {rows.map((row, index) => (
-                <tr key={index}>
-                  {Object.keys(items[0])
-                    .filter((field) => field !== "childrens")
-                    .map((field, index) => (
-                      <td key={index}>{row[field]}</td>
-                    ))}
-                  <td className="align-middle">
-                    <div className="btn-group">
-                      <button
-                        className="btn btn-sm btn-warning"
-                        onClick={() => {
-                          setItem(row);
-                        }}
-                      >
-                        <i className="fas fa-edit"></i>
-                      </button>
-                      <button
-                        className="btn btn-sm btn-danger"
-                        onClick={() => {
-                          if (
-                            window.confirm(
-                              "Tem certeza que deseja remover o item?"
-                            )
-                          ) {
-                            handleItem(menuId, row, "excluir");
-                          }
-                        }}
-                      >
-                        <i className="fas fa-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </>
-          );
+        return (
+          <>
+            {rows.map((row, index) => (
+              <tr key={index}>
+                {Object.keys(items[0])
+                  .filter((field) => field !== "childrens")
+                  .map((field, index) => (
+                    <td key={index}>{row[field]}</td>
+                  ))}
+                <td className="align-middle">
+                  <div className="btn-group">
+                    <button
+                      className="btn btn-sm btn-warning"
+                      onClick={() => {
+                        setItem((prevsItem) => {
+                          const { belongTreeview, childrens } = prevsItem;
+                          return belongTreeview
+                            ? { ...row, childrens, belongTreeview }
+                            : { ...row };
+                        });
+                      }}
+                    >
+                      <i className="fas fa-edit"></i>
+                    </button>
+                    <button
+                      className="btn btn-sm btn-danger"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            "Tem certeza que deseja remover o item?"
+                          )
+                        ) {
+                          handleItem(menuId, row, "excluir");
+                        }
+                      }}
+                    >
+                      <i className="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </>
+        );
       };
 
       return (
@@ -217,6 +296,7 @@ function Config() {
                 <label>Item</label>
                 <select
                   className="form-control form-control-sm"
+                  value={item.belongTreeview || ""}
                   onChange={(e) => {
                     const { value } = e.target;
                     handleChildrens(menuId, +value);
@@ -226,11 +306,13 @@ function Config() {
                   {menuAtual
                     .filter(({ id }) => id === menuId)
                     .map((menu) =>
-                      menu.items.map(({ label, id }, i) => (
-                        <option key={i} value={+id}>
-                          {label}
-                        </option>
-                      ))
+                      menu.items
+                        .filter(({ style }) => style === "treeview")
+                        .map(({ label, id }, i) => (
+                          <option key={i} value={+id}>
+                            {label}
+                          </option>
+                        ))
                     )}
                 </select>
               </FormGroup>
@@ -247,9 +329,7 @@ function Config() {
                     value={item.label}
                     onChange={(e) => {
                       const { value } = e.target;
-                      setItem((item) => {
-                        return { ...item, label: value };
-                      });
+                      setItem((item) => ({ ...item, label: value }));
                     }}
                   />
                 </Grid>
@@ -299,7 +379,8 @@ function Config() {
                 </div>
               </div>
             )}
-            {menuTabs.active !== "tab-header" && (
+            {(menuTabs.active === "tab-items" ||
+              menuTabs.active === "tab-childrens") && (
               <div className="ml-auto mt-4">
                 <div className="btn-group">
                   <button
@@ -321,6 +402,7 @@ function Config() {
                         label: "",
                         style: "link",
                         icon: "",
+                        childrens: [],
                       })
                     }
                     disabled={!item.label && !item.icon}
@@ -331,8 +413,9 @@ function Config() {
               </div>
             )}
           </div>
-          {((menuTabs.active === "tab-items") ||
-            (menuTabs.active === "tab-childrens" && childrens.length > 0)) && (
+          {(menuTabs.active === "tab-items" && items.length > 0 ||
+            (menuTabs.active === "tab-childrens" &&
+              item.childrens.length > 0)) && (
             <>
               <hr />
               <table className="table table-striped table-bordered text-center">
@@ -357,36 +440,51 @@ function Config() {
 
     return (
       <div>
-        <div className="btn-group">
-          <button
-            type="button"
-            className="btn btn-info btn-sm"
-            onClick={() => {
-              const ultimoKey = menuAtual[menuAtual.length - 1].id;
-              const novoHeader = {
-                id: ultimoKey + 1,
-                header: "",
-                items: [],
-              };
-              setMenuAtual([...menuAtual, novoHeader]);
-            }}
-          >
-            <i className="fas fa-plus mr-2"></i>Incluir menu
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={() => setMenuAtual(menuInicial)}
-          >
-            <i className="fas fa-redo-alt mr-2"></i>Redefinir
-          </button>
+        <div className="d-flex justify-content-between">
+          <div className="btn-group">
+            <button
+              type="button"
+              className="btn btn-info btn-sm"
+              onClick={() => {
+                const ultimoKey =
+                  menuAtual.length > 0 ? menuAtual[menuAtual.length - 1].id : 0;
+                const novoHeader = {
+                  id: ultimoKey + 1,
+                  header: "",
+                  items: [],
+                };
+                setMenuTabs((prevsMenuTabs) => ({...prevsMenuTabs, active: "tab-header" }))
+                setMenuAtual([...menuAtual, novoHeader]);
+              }}
+            >
+              <i className="fas fa-plus mr-2"></i>Incluir menu
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => {
+                setMenuAtual([])
+                setMenuAtual(menuDefault);
+              }}
+            >
+              <i className="fas fa-redo-alt mr-2"></i>Restaurar padrão
+            </button>
+          </div>
+          <div>
+            <button className="btn btn-primary btn-sm" onClick={() => {
+              localStorage.setItem("menuData", JSON.stringify(menuAtual));
+              setTimeout(() => {
+                  window.location.reload();
+              }, 1000);
+            }}><i className="fas fa-save mr-2"></i>Salvar menu</button>
+          </div>
         </div>
         <hr />
         <Accordion>
-          {menuAtual.map(({ id, header, items }) => (
+          {menuAtual.map(({ id, header, items }, index) => (
             <AccordionItem
               key={id}
-              title={`Menu ${id}`}
+              title={`Menu ${index + 1}`}
               onClickAccordionItem={() => {
                 setMenuTabs(({ menuId, active }) => ({
                   menuId: id,
@@ -396,8 +494,8 @@ function Config() {
             >
               <Card
                 cardClass="card-secondary card-outline"
-                header="Editar"
-                icon="edit"
+                header="Definições"
+                icon="cog"
               >
                 <Row>
                   <Grid cols="12 5 3">
@@ -518,8 +616,28 @@ function Config() {
                               <Row>
                                 <Grid cols="12 12">
                                   <TabelaMenu {...{ menuId: id, items }} />
-                                </Grid> 
+                                </Grid>
                               </Row>
+                              {target === "tab-excluir-menu" && (
+                                <div className="d-flex flex-column align-items-center text-center">
+                                  <p>
+                                    Tem certeza que deseja exluir todo conteúdo
+                                    desse menu?
+                                  </p>
+                                  <button
+                                    className="btn btn-danger mt-2"
+                                    onClick={() => {
+                                      const exluirMenu = menuAtual.filter(
+                                        (menu) => menu.id !== id
+                                      );
+                                      setMenuAtual(exluirMenu);
+                                    }}
+                                  >
+                                    <i className="fas fa-times mr-2"></i>Excluir
+                                    menu
+                                  </button>
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))

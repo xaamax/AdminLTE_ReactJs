@@ -3,35 +3,36 @@ import Header from "./common/templates/Header";
 import Sidebar from "./common/templates/Sidebar";
 import Footer from "./common/templates/Footer";
 import Routes from "./routes/routes";
-import { userData, menuData } from "./common/constants/index";
+import { userData, menuDefault } from "./common/constants/index";
 
 function App() {
   useEffect(() => {
     localStorage.setItem("userData", JSON.stringify(userData));
-    localStorage.setItem(
-      "menuData",
-      JSON.stringify(
-        menuData.map((menu, i) => ({
-          id: i + 1,
-          ...menu,
-          header: `${menu.header} ${i + 1}`,
-          items: menu.items.map((item, itemIndex) => {
-            return {
-              id: itemIndex + 1,
-              ...item,
-              childrens: item.childrens
-              ? item.childrens.map((children, childrenIndex) => {
-                return {
-                  id: childrenIndex + 1,
-                  ...children,
-                };
-              })
-              : [],
-            };
-          }),
-        }))
-      )
-    );
+    if (!localStorage.getItem("menuData"))
+      localStorage.setItem(
+        "menuData", JSON.stringify(menuDefault)
+        // JSON.stringify(
+        //   menuDefault.map((menu, i) => ({
+        //     id: i + 1,
+        //     ...menu,
+        //     header: `${menu.header} ${i + 1}`,
+        //     items: menu.items.map((item, itemIndex) => {
+        //       return {
+        //         id: itemIndex + 1,
+        //         ...item,
+        //         childrens: item.childrens
+        //           ? item.childrens.map((children, childrenIndex) => {
+        //               return {
+        //                 id: childrenIndex + 1,
+        //                 ...children,
+        //               };
+        //             })
+        //           : [],
+        //       };
+        //     }),
+        //   }))
+        // )
+      );
   }, []);
 
   const [darkMode, setDarkMode] = useState(false);
