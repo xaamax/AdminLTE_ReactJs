@@ -7,10 +7,10 @@ import { userData, menuDefault } from "./common/constants/index";
 
 function App() {
   useEffect(() => {
-    localStorage.setItem("userData", JSON.stringify(userData));
     if (!localStorage.getItem("menuData"))
       localStorage.setItem(
-        "menuData", JSON.stringify(menuDefault)
+        "menuData",
+        JSON.stringify(menuDefault)
         // JSON.stringify(
         //   menuDefault.map((menu, i) => ({
         //     id: i + 1,
@@ -33,6 +33,8 @@ function App() {
         //   }))
         // )
       );
+    if (!localStorage.getItem("userData"))
+      localStorage.setItem("userData", JSON.stringify(userData));
   }, []);
 
   const [darkMode, setDarkMode] = useState(false);

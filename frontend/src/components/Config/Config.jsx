@@ -14,6 +14,7 @@ import { InputLabel } from "../../common/form/controls/Input";
 import FormGroup from "../../common/form/FormGroup";
 import { optionsEstiloMenu } from "../../common/constants/index";
 import { menuDefault } from "../../common/constants/index";
+import Gravatar from "react-gravatar";
 
 const tabsMenu = [
   { label: "Menu", icon: "th", target: "tabMenu", active: true },
@@ -21,11 +22,7 @@ const tabsMenu = [
 ];
 
 function Config() {
-  const [tabActive, setTabActive] = useState();
-
-  useEffect(() => {
-    setTabActive("tabMenu");
-  }, []);
+  const [tabActive, setTabActive] = useState("tabMenu");
 
   const handleTabSelect = (tab) =>
     tabsMenu.filter(({ target, active }) => {
@@ -536,10 +533,24 @@ function Config() {
             >
               <i className="fas fa-redo-alt mr-2"></i>Restaurar padrão
             </button>
+            <button
+              className="btn btn-danger btn-sm"
+              onClick={() => {
+                if (
+                  window.confirm(
+                    "Tem certeza que deseja excluir todos os menus?"
+                  )
+                )
+                  setMenuAtual([]);
+              }}
+              disabled={!menuAtual.length}
+            >
+              <i className="fas fa-times mr-2"></i>Excluir menus
+            </button>
           </div>
           <div>
             <button
-              className="btn btn-primary btn-sm"
+              className="btn btn-success btn-sm"
               onClick={() => {
                 localStorage.setItem("menuData", JSON.stringify(menuAtual));
                 setTimeout(() => {
@@ -547,7 +558,7 @@ function Config() {
                 }, 1000);
               }}
             >
-              <i className="fas fa-save mr-2"></i>Salvar menu
+              <i className="fas fa-save mr-2"></i>Salvar configurações
             </button>
           </div>
         </div>
@@ -724,11 +735,95 @@ function Config() {
     );
   };
 
-  const TabUsuario = () => (
-    <div className="card-header">
-      <h3 className="card-title">::. Usuario .::</h3>
-    </div>
-  );
+  const TabUsuario = () => {
+    const initUser = {
+      email: "",
+      nome: "",
+    };
+
+    const [user, setUser] = useState(
+      JSON.parse(localStorage.getItem("userData"))
+    );
+
+    return (
+      <div className="container-fluid">
+        <div className="row">
+          <div className="col-md-3 pt-1 mb-3">
+            <div className="card mb-3">
+              <div className="card-header bg-light"></div>
+              <div className="d-flex align-self-center pt-3">
+                <Gravatar
+                  email={user.email}
+                  className="img-circle elevation-2"
+                  width="100"
+                  height="100"
+                />
+              </div>
+              <div className="card-body">
+                <div className="h4 fw-bold text-center"></div>
+                <div>
+                  <small className="p-1">
+                    <strong>Nome: </strong>
+                    {user.nome}
+                  </small>
+                  <br />
+                  <small className="p-1">
+                    <strong>E-mail: </strong>
+                    {user.email}
+                  </small>
+                </div>
+              </div>
+              <div className="card-footer"></div>
+            </div>
+          </div>
+          <div className="col-lg-9 mb-3">
+            <div className="row">
+              <div className="col-12">
+                <h4 className="border-bottom">Dados</h4>
+              </div>
+              <Grid cols="12 6">
+                <InputLabel
+                  label="Nome"
+                  type="text"
+                  placeholder="Informe o nome"
+                  value={user.nome}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    setUser((prevUser) => ({ ...prevUser, nome: value }));
+                  }}
+                />
+              </Grid>
+              <Grid cols="12 6">
+                <InputLabel
+                  label="E-mail"
+                  type="email"
+                  placeholder="Informe o e-mail"
+                  value={user.email}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    setUser((prevUser) => ({ ...prevUser, email: value }));
+                  }}
+                />
+              </Grid>
+            </div><hr />
+            <div className="d-flex justify-content-between">
+            <div>
+            <button className="btn btn-success" onClick={() => {
+              localStorage.setItem("userData", JSON.stringify(user))
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            }}><i className="fas fa-save mr-2"></i>Salvar alterações</button>
+            </div>
+            <div>
+            <button className="btn btn-danger" onClick={() => setUser(initUser)}><i className="fas fa-eraser mr-2"></i>Limpar</button>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <Content contentClass="container-fluid">
@@ -738,29 +833,29 @@ function Config() {
         breadCrumbText
       />
       <div className="p-2">
-      <Tabs>
-        <TabsHeader>
-          {tabsMenu.map(({ label, icon, target, active, visible }, key) => (
-            <TabHeader
-              key={key}
-              {...{ label, icon, target, active, visible }}
-              handleTabSelect={handleTabSelect}
-            />
-          ))}
-        </TabsHeader>
-        <TabsContent>
-          {tabsMenu.map(({ target }, key) => (
-            <TabContent
-              key={key}
-              id={target}
-              active={tabActive === target ?? false}
-            >
-              {tabActive === "tabMenu" && <TabMenu />}
-              {tabActive === "tabUsuario" && <TabUsuario />}
-            </TabContent>
-          ))}
-        </TabsContent>
-      </Tabs>
+        <Tabs>
+          <TabsHeader>
+            {tabsMenu.map(({ label, icon, target, active, visible }, key) => (
+              <TabHeader
+                key={key}
+                {...{ label, icon, target, active, visible }}
+                handleTabSelect={handleTabSelect}
+              />
+            ))}
+          </TabsHeader>
+          <TabsContent>
+            {tabsMenu.map(({ target }, key) => (
+              <TabContent
+                key={key}
+                id={target}
+                active={tabActive === target ?? false}
+              >
+                {tabActive === "tabMenu" && <TabMenu />}
+                {tabActive === "tabUsuario" && <TabUsuario />}
+              </TabContent>
+            ))}
+          </TabsContent>
+        </Tabs>
       </div>
     </Content>
   );
