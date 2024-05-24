@@ -34,7 +34,7 @@ export const menuDefault = [
                 label: "Treeview 1",
                 icon: "bars",
                 style: "treeview",
-                visible: true, 
+                visible: true,
                 order: 1,
                 route: "#",
                 childrens: [
@@ -49,4 +49,24 @@ export const menuDefault = [
 export const optionsEstiloMenu = [
     { label: "MenuLink", value: "link" },
     { label: "MenuTreeview", value: "treeview" },
+]
+
+
+export const bgColors = [
+    {key: "bg-primary", text: "Primary" },
+    {key: "bg-warning", text: "Warning" },
+    {key: "bg-info", text: "Info" },
+    {key: "bg-danger", text: "Danger" },
+    {key: "bg-success", text: "Success" },
+    {key: "bg-indigo", text: "Indigo" },
+    {key: "bg-lightblue", text: "Lightblue" },
+    {key: "bg-navy", text: "Navy" },
+    {key: "bg-purple", text: "Purple" },
+    {key: "bg-fuchsia", text: "Fuchsia" },
+    {key: "bg-pink", text: "Pink" },
+    {key: "bg-maroon", text: "Maroon" },
+    {key: "bg-orange", text: "Orange" },
+    {key: "bg-lime", text: "Lime" },
+    {key: "bg-teal", text: "Teal" },
+    {key: "bg-olive", text: "Olive" },
 ]

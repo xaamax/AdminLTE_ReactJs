@@ -18,8 +18,10 @@ import {
   systemDefault,
   LogoDefault,
   Logo,
+  bgColors,
 } from "../../common/constants/index";
 import Gravatar from "react-gravatar";
+import { Table as TabelaHubs } from "../../common/layouts/Table";
 
 const tabsMenu = [
   { label: "Sistema", icon: "wrench", target: "tabSistema", active: true },
@@ -503,7 +505,7 @@ function Config() {
           <div className="btn-group">
             <button
               type="button"
-              className="btn btn-info btn-sm"
+              className="btn btn-primary btn-sm"
               onClick={() => {
                 const ultimoKey =
                   menuAtual.length > 0 ? menuAtual[menuAtual.length - 1].id : 0;
@@ -567,7 +569,7 @@ function Config() {
               }}
             >
               <Card
-                cardClass="card-secondary card-outline"
+                cardclassName="card-secondary card-outline"
                 header="Definições"
                 icon="cog"
               >
@@ -874,7 +876,8 @@ function Config() {
                         onChange={(e) => {
                           const { value } = e.target;
                           if (value === "default") setSistema(systemDefault);
-                          else setSistema({ ...sistema, name: "", style: value });
+                          else
+                            setSistema({ ...sistema, name: "", style: value });
                         }}
                       />
                       <label className="form-check-label">{label}</label>
@@ -914,9 +917,7 @@ function Config() {
                 </div>
               </Grid>
               <Grid cols="12 7" classGrid=" mt-2">
-                <small>
-                  Formato png com fundo transparente (128 x 128px)
-                </small>
+                <small>Formato png com fundo transparente (128 x 128px)</small>
                 <div className="input-group">
                   <div className="custom-file">
                     <input
@@ -967,6 +968,188 @@ function Config() {
     );
   };
 
+  const TabHubs = () => {
+    const initHub = {
+      name: "",
+      icon: "",
+      color: "bg-primary",
+      order: 1,
+    };
+    const [hub, setHub] = useState(initHub);
+
+    const [hubs, setHubs] = useState([]);
+
+    const fields = [
+      { key: "id", text: "#" },
+      { key: "name", text: "Nome" },
+      { key: "icon", text: "Icone", type: "icon" },
+      { key: "color", text: "Cor", type: "color" },
+      { key: "order", text: "Ordem" },
+    ];
+
+    const RowsTableHubs = () => {
+      return hubs
+        .sort((a, b) => a.order - b.order)
+        .map((row, index) => (
+          <tr key={index}>
+            {fields.map(({ key, type }, index) => (
+              <td key={index}>
+                {type === "icon" && <i className={`fas fa-${row.icon}`}></i>}
+                {type === "boolean" && JSON.stringify(row[key])}
+                {type === "color" && (
+                  <span className={`right badge ${row.color}`}>
+                    {row.color}
+                  </span>
+                )}
+                {!type && row[key]}
+              </td>
+            ))}
+            <td className="align-middle">
+              <div className="btn-group">
+                <button
+                  className="btn btn-sm btn-warning"
+                  onClick={() => {
+                    setHub({ ...row });
+                  }}
+                >
+                  <i className="fas fa-edit"></i>
+                </button>
+                <button
+                  className="btn btn-sm btn-danger"
+                  onClick={() => {
+                    if (
+                      window.confirm("Tem certeza que deseja remover o item?")
+                    ) {
+                    }
+                  }}
+                >
+                  <i className="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        ));
+    };
+
+    const handleHub = (item, acao) => {
+      const novosHubs = [...hubs];
+      switch (acao) {
+        case "editar":
+          const hubIndex = hubs.findIndex(({ id }) => id === item.id);
+          novosHubs.splice(hubIndex, 1, item);
+          setHubs(novosHubs);
+          break;
+        default:
+          const hubID = hubs.length > 0 ? hubs[hubs.length - 1].id : 0;
+          const novoHub = {
+            id: hubID + 1,
+            ...item,
+          };
+          setHubs([...novosHubs, novoHub]);
+          break;
+      }
+      setHub(initHub);
+    };
+
+    return (
+      <FormGroup>
+        <Row>
+          <Grid cols="12 4">
+            <InputLabel
+              inputClass="form-control-sm"
+              label="Nome"
+              type="text"
+              placeholder="Informe o nome do Hub"
+              value={hub.name}
+              onChange={(e) => {
+                const { value } = e.target;
+                setHub({ ...hub, name: value });
+              }}
+            />
+          </Grid>
+          <Grid cols="12 4">
+            <InputLabel
+              inputClass="form-control-sm"
+              label="Ícone"
+              type="text"
+              placeholder="Informe o ícone do Hub"
+              value={hub.icon}
+              onChange={(e) => {
+                const { value } = e.target;
+                setHub({ ...hub, icon: value });
+              }}
+            />
+          </Grid>
+          <Grid cols="12 2">
+            <label>Cor</label>
+            <select
+              className={`form-control form-control-sm border-0 mb-3 ${hub.color}`}
+              value={hub.color}
+              onChange={(e) => {
+                const { value } = e.target;
+                setHub({ ...hub, color: value });
+              }}
+            >
+              {bgColors.map(({ key, text }, index) => (
+                <option key={index} className={key} value={key}>
+                  {text}
+                </option>
+              ))}
+            </select>
+          </Grid>
+          <Grid cols="12 2">
+            <label>Ordem</label>
+            <select
+              className="form-control form-control-sm"
+              value={hub.order}
+              onChange={(e) => {
+                const { value } = e.target;
+                setHub({ ...hub, order: value });
+              }}
+            >
+              <>
+                {!hubs.length && <option value="1">1</option>}
+                {hubs.length > 0 && (
+                  <>
+                    {hubs.map(({}, index) => (
+                      <option key={index} value={index + 1}>
+                        {index + 1}
+                      </option>
+                    ))}
+                  </>
+                )}
+                <option value={hubs.length + 1}>{hubs.length + 1}</option>
+              </>
+            </select>
+          </Grid>
+        </Row>
+        <Row>
+          <Grid cols="12 3">
+            <div className="btn-group">
+              <button
+                className="btn btn-sm btn-info"
+                disabled={!hub.name || !hub.icon}
+                onClick={() => handleHub(hub, hub.id ? "editar" : "inserir")}
+              >
+                <i className={`fas fa-${hub.id ? "save" : "plus"} mr-2`}></i>
+                {hub.id ? "Salvar" : "Incluir"}
+              </button>
+              <button
+                disabled={!hub.name}
+                className="btn btn-sm btn-secondary"
+                onClick={() => setHub(initHub)}
+              >
+                <i className="fas fa-eraser mr-2"></i>Limpar
+              </button>
+            </div>
+          </Grid>
+        </Row>
+        <hr />
+        <TabelaHubs {...{ fields }} rows={<RowsTableHubs />} />
+      </FormGroup>
+    );
+  };
+
   return (
     <Content contentClass="container-fluid">
       <ContentHeader
@@ -994,6 +1177,7 @@ function Config() {
               >
                 {tabActive === "tabSistema" && <TabSistema />}
                 {tabActive === "tabMenu" && <TabMenu />}
+                {tabActive === "tabHubs" && <TabHubs />}
                 {tabActive === "tabUsuario" && <TabUsuario />}
               </TabContent>
             ))}
