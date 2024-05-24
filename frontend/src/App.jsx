@@ -3,7 +3,7 @@ import Header from "./common/templates/Header";
 import Sidebar from "./common/templates/Sidebar";
 import Footer from "./common/templates/Footer";
 import Routes from "./routes/routes";
-import { userData, menuDefault } from "./common/constants/index";
+import { userData, menuDefault, systemDefault } from "./common/constants/index";
 
 function App() {
   useEffect(() => {
@@ -35,6 +35,9 @@ function App() {
       );
     if (!localStorage.getItem("userData"))
       localStorage.setItem("userData", JSON.stringify(userData));
+
+    if (!localStorage.getItem("systemData"))
+      localStorage.setItem("systemData", JSON.stringify(systemDefault));
   }, []);
 
   const [darkMode, setDarkMode] = useState(false);

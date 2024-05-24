@@ -1,7 +1,20 @@
+import LogoDefault from "../../assets/images/logo_default.png"
+import Logo from "../../assets/images/logo.png"
+
+export { LogoDefault, Logo };
+
+export const systemDefault = {
+    name: "MyApp",
+    logoCircle: false,
+    style: "default"
+}
+
+
 export const userData = {
     nome: "Max Fernandes de Souza",
     email: "xaamax@gmail.com",
 };
+
 
 export const menuDefault = [
     {
@@ -23,6 +36,7 @@ export const menuDefault = [
                 style: "treeview",
                 visible: true, 
                 order: 1,
+                route: "#",
                 childrens: [
                     { id: 1, label: "Link 3", style: "link", icon: "file", visible: true, order: 1, route: "/" },
                     { id: 2, label: "Link 4", style: "link", icon: "copy", visible: true, order: 1, route: "/" },

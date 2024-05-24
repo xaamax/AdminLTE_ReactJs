@@ -1,36 +1,44 @@
-import React from 'react';
-import Menu from './Menu';
-import Logo from '../../assets/images/logoM.png';
+import React from "react";
+import Menu from "./Menu";
+import Logo from "../../assets/images/logo.png";
+import LogoDefault from "../../assets/images/logo_default.png";
+
+const { name, logoCircle, style } =
+  JSON.parse(localStorage.getItem("systemData")) || "";
 
 const SideBar = () => (
-  <aside className='main-sidebar sidebar-dark-primary elevation-4'>
-    <a href='/' className='brand-link'>
-        <img
-          src={Logo}
-          alt='Logo Small'
-          className='brand-image elevation-3 logo-xs'
-        />
+  <aside className="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="/" className="brand-link">
+      <img
+        src={style === "default" ? LogoDefault : Logo}
+        alt="Logo Small"
+        className={`brand-image elevation-3 logo-xs img-circle ${
+          logoCircle ? "img-circle" : ""
+        }`}
+      />
 
-      <span className='brand-text'>
-        <div className='d-flex'>
+      <span className="brand-text">
+        <div className="d-flex">
           <>
             <img
-              src={Logo}
-              alt='Logo Large'
-              className='brand-image elevation-3'
+              src={style === "default" ? LogoDefault : Logo}
+              alt="Logo Large"
+              className={`brand-image elevation-3 ${
+                logoCircle ? "img-circle" : ""
+              }`}
             />
           </>
           <>
-            <i className='fa fa-money'></i>
-            My <strong>App</strong>
+            <i className="fa fa-money"></i>
+            {name}
           </>
         </div>
       </span>
     </a>
-    <div className='sidebar'>
+    <div className="sidebar">
       <Menu />
     </div>
   </aside>
 );
 
-export default SideBar
+export default SideBar;

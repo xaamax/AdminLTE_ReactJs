@@ -13,16 +13,23 @@ import Card from "../../common/layouts/Card";
 import { InputLabel } from "../../common/form/controls/Input";
 import FormGroup from "../../common/form/FormGroup";
 import { optionsEstiloMenu } from "../../common/constants/index";
-import { menuDefault } from "../../common/constants/index";
+import {
+  menuDefault,
+  systemDefault,
+  LogoDefault,
+  Logo,
+} from "../../common/constants/index";
 import Gravatar from "react-gravatar";
 
 const tabsMenu = [
-  { label: "Menu", icon: "th", target: "tabMenu", active: true },
+  { label: "Sistema", icon: "wrench", target: "tabSistema", active: true },
+  { label: "Menus", icon: "bars", target: "tabMenu", active: false },
+  { label: "Hubs", icon: "th", target: "tabHubs", active: false },
   { label: "Usuário", icon: "user", target: "tabUsuario", active: false },
 ];
 
 function Config() {
-  const [tabActive, setTabActive] = useState("tabMenu");
+  const [tabActive, setTabActive] = useState("tabSistema");
 
   const handleTabSelect = (tab) =>
     tabsMenu.filter(({ target, active }) => {
@@ -252,11 +259,11 @@ function Config() {
               <tr key={index}>
                 {fields.map(({ key, type }, index) => (
                   <td key={index}>
-                    {!type && row[key]}
                     {type === "icon" && (
                       <i className={`fas fa-${row["icon"]}`}></i>
                     )}
                     {type === "boolean" && JSON.stringify(row[key])}
+                    {!type && row[key]}
                   </td>
                 ))}
                 <td className="align-middle">
@@ -338,7 +345,7 @@ function Config() {
                       value={item.label}
                       onChange={(e) => {
                         const { value } = e.target;
-                        setItem((item) => ({ ...item, label: value }));
+                        setItem({ ...item, label: value });
                       }}
                     />
                   </Grid>
@@ -351,9 +358,7 @@ function Config() {
                       value={item.icon}
                       onChange={(e) => {
                         const { value } = e.target;
-                        setItem((item) => {
-                          return { ...item, icon: value };
-                        });
+                        setItem({ ...item, icon: value });
                       }}
                     />
                   </Grid>
@@ -371,9 +376,7 @@ function Config() {
                       value={item.route || ""}
                       onChange={(e) => {
                         const { value } = e.target;
-                        setItem((item) => {
-                          return { ...item, route: value };
-                        });
+                        setItem({ ...item, route: value });
                       }}
                     />
                   </Grid>
@@ -384,10 +387,7 @@ function Config() {
                       value={item.order}
                       onChange={(e) => {
                         const { value } = e.target;
-                        setItem((prevsItem) => ({
-                          ...prevsItem,
-                          order: value,
-                        }));
+                        setItem({ ...item, order: value });
                       }}
                     >
                       {items.length === 0 && <option value={1}>1</option>}
@@ -412,10 +412,7 @@ function Config() {
                         checked={item.visible}
                         onChange={(e) => {
                           const { checked } = e.target;
-                          setItem((prevItem) => ({
-                            ...prevItem,
-                            visible: checked,
-                          }));
+                          setItem({ ...item, visible: checked });
                         }}
                       />
                       <label className="font-weight-bold">Visível</label>
@@ -442,9 +439,7 @@ function Config() {
                         }}
                         onChange={(e) => {
                           const { value } = e.target;
-                          setItem((item) => {
-                            return { ...item, style: value, route: "#" };
-                          });
+                          setItem({ ...item, style: value, route: "#" });
                         }}
                       />
                       <label className="form-check-label">{label}</label>
@@ -514,13 +509,9 @@ function Config() {
                   menuAtual.length > 0 ? menuAtual[menuAtual.length - 1].id : 0;
                 const novoHeader = {
                   id: ultimoKey + 1,
-                  header: "",
                   items: [],
                 };
-                setMenuTabs((prevsMenuTabs) => ({
-                  ...prevsMenuTabs,
-                  active: "tab-header",
-                }));
+                setMenuTabs({ ...menuTabs, active: "tab-header" });
                 setMenuAtual([...menuAtual, novoHeader]);
               }}
             >
@@ -632,12 +623,12 @@ function Config() {
                                 <div>
                                   <Row>
                                     <Grid>
-                                      <div className="form-check">
+                                      <div className="custom-control custom-switch">
                                         <input
                                           type="checkbox"
-                                          className="form-check-input"
+                                          id="headerSwitch"
+                                          className="custom-control-input"
                                           checked={header !== undefined}
-                                          style={{ cursor: "pointer" }}
                                           onChange={(e) => {
                                             const { checked } = e.target;
                                             setMenuAtual((prevMenus) =>
@@ -661,8 +652,11 @@ function Config() {
                                             );
                                           }}
                                         />
-                                        <label className="form-check-label">
-                                          Incluir header no menu?
+                                        <label
+                                          className="custom-control-label"
+                                          htmlFor="headerSwitch"
+                                        >
+                                          Incluir Header
                                         </label>
                                       </div>
                                     </Grid>
@@ -776,7 +770,7 @@ function Config() {
               <div className="card-footer"></div>
             </div>
           </div>
-          <div className="col-lg-9 mb-3">
+          <div className="col-lg-9 mb-3 p-4">
             <div className="row">
               <div className="col-12">
                 <h4 className="border-bottom">Dados</h4>
@@ -789,7 +783,7 @@ function Config() {
                   value={user.nome}
                   onChange={(e) => {
                     const { value } = e.target;
-                    setUser((prevUser) => ({ ...prevUser, nome: value }));
+                    setUser({ ...user, nome: value });
                   }}
                 />
               </Grid>
@@ -801,26 +795,174 @@ function Config() {
                   value={user.email}
                   onChange={(e) => {
                     const { value } = e.target;
-                    setUser((prevUser) => ({ ...prevUser, email: value }));
+                    setUser({ ...user, email: value });
                   }}
                 />
               </Grid>
-            </div><hr />
+            </div>
+            <hr />
             <div className="d-flex justify-content-between">
-            <div>
-            <button className="btn btn-success" onClick={() => {
-              localStorage.setItem("userData", JSON.stringify(user))
-              setTimeout(() => {
-                window.location.reload();
-              }, 1000);
-            }}><i className="fas fa-save mr-2"></i>Salvar alterações</button>
-            </div>
-            <div>
-            <button className="btn btn-danger" onClick={() => setUser(initUser)}><i className="fas fa-eraser mr-2"></i>Limpar</button>
-            </div>
+              <div>
+                <button
+                  className="btn btn-success"
+                  onClick={() => {
+                    localStorage.setItem("userData", JSON.stringify(user));
+                    setTimeout(() => {
+                      window.location.reload();
+                    }, 1000);
+                  }}
+                >
+                  <i className="fas fa-save mr-2"></i>Salvar alterações
+                </button>
+              </div>
+              <div>
+                <button
+                  className="btn btn-danger"
+                  onClick={() => setUser(initUser)}
+                >
+                  <i className="fas fa-eraser mr-2"></i>Limpar
+                </button>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+    );
+  };
+
+  const TabSistema = () => {
+    const systemData = JSON.parse(localStorage.getItem("systemData"));
+    const [sistema, setSistema] = useState(systemData);
+    // const [previewLogo, setPreviewLogo] = useState();
+    const [fileName, setFileName] = useState();
+
+    const handleLogoChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        setFileName(file.name);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          // setPreviewLogo(reader.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    };
+
+    const optionsEstiloSistema = [
+      { label: "Padrão", value: "default" },
+      { label: "Personalizado", value: "custom" },
+    ];
+
+    return (
+      <div>
+        <Row>
+          <Grid cols="12 8">
+            <Row className="mt-2">
+              <Grid cols="12 5">
+                <label>Estilo</label>
+                <div className="d-flex flex-wrap">
+                  {optionsEstiloSistema.map(({ label, value }, index) => (
+                    <div key={index} className="form-check mr-3 mb-2">
+                      <input
+                        type="radio"
+                        className="form-check-input"
+                        value={value}
+                        checked={sistema.style === value}
+                        style={{
+                          cursor: "pointer",
+                        }}
+                        onChange={(e) => {
+                          const { value } = e.target;
+                          if (value === "default") setSistema(systemDefault);
+                          else setSistema({ ...sistema, name: "", style: value });
+                        }}
+                      />
+                      <label className="form-check-label">{label}</label>
+                    </div>
+                  ))}
+                </div>
+              </Grid>
+              <Grid cols="12 7">
+                <InputLabel
+                  label="Nome da aplicação"
+                  type="text"
+                  placeholder="Informe o nome da aplicação"
+                  value={sistema.name}
+                  disabled={sistema.style === "default"}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    setSistema({ ...sistema, name: value });
+                  }}
+                />
+              </Grid>
+              <Grid cols="12 5" classGrid=" mt-4">
+                <div className="form-check">
+                  <input
+                    type="checkbox"
+                    className="form-check-input"
+                    id="exampleCheck1"
+                    checked={sistema.logoCircle}
+                    style={{ cursor: "pointer" }}
+                    onChange={(e) => {
+                      const { checked } = e.target;
+                      setSistema({ ...sistema, logoCircle: checked });
+                    }}
+                  />
+                  <label className="form-check-label" htmlFor="exampleCheck1">
+                    Logo circular
+                  </label>
+                </div>
+              </Grid>
+              <Grid cols="12 7" classGrid=" mt-2">
+                <small>
+                  Formato png com fundo transparente (128 x 128px)
+                </small>
+                <div className="input-group">
+                  <div className="custom-file">
+                    <input
+                      id="iconFile"
+                      type="file"
+                      className="custom-file-input"
+                      onChange={handleLogoChange}
+                    />
+                    <label className="custom-file-label" htmlFor="iconFile">
+                      {!fileName && (
+                        <span>
+                          <i className="fas fa-folder-open mr-2"></i>Escolha o
+                          icone da aplicação
+                        </span>
+                      )}
+                      {fileName && fileName}
+                    </label>
+                  </div>
+                </div>
+              </Grid>
+            </Row>
+          </Grid>
+          <Grid cols="12 4" classGrid=" text-center mt-4">
+            <h5>Logo da aplicação:</h5>
+            <img
+              src={sistema.style === "default" ? LogoDefault : Logo}
+              alt="Preview"
+              className={`img-thumbnail ${
+                sistema.logoCircle ? "img-circle" : ""
+              }`}
+              style={{ maxWidth: "108px" }}
+            />
+          </Grid>
+        </Row>
+        <hr />
+        <button
+          className="btn btn-success"
+          onClick={() => {
+            localStorage.setItem("systemData", JSON.stringify(sistema));
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }}
+        >
+          <i className="fas fa-save mr-2"></i>Salvar configurações
+        </button>
       </div>
     );
   };
@@ -850,6 +992,7 @@ function Config() {
                 id={target}
                 active={tabActive === target ?? false}
               >
+                {tabActive === "tabSistema" && <TabSistema />}
                 {tabActive === "tabMenu" && <TabMenu />}
                 {tabActive === "tabUsuario" && <TabUsuario />}
               </TabContent>
