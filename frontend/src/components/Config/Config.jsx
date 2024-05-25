@@ -15,13 +15,15 @@ import FormGroup from "../../common/form/FormGroup";
 import { optionsEstiloMenu } from "../../common/constants/index";
 import {
   menuDefault,
-  systemDefault,
+  appDefault,
   LogoDefault,
   Logo,
   bgColors,
 } from "../../common/constants/index";
 import Gravatar from "react-gravatar";
 import { Table as TabelaHubs } from "../../common/layouts/Table";
+
+import { appData, menuData } from "../../common/constants/index";
 
 const tabsMenu = [
   { label: "Sistema", icon: "wrench", target: "tabSistema", active: true },
@@ -40,8 +42,7 @@ function Config() {
     });
 
   const TabMenu = () => {
-    const menuInicial = JSON.parse(localStorage.getItem("menuData"));
-    const [menuAtual, setMenuAtual] = useState(menuInicial);
+    const [menuAtual, setMenuAtual] = useState(menuData());
 
     const handleInputChange = (menuId, field, value) => {
       const novoMenu = menuAtual.map((menu) => {
@@ -517,14 +518,27 @@ function Config() {
                 setMenuAtual([...menuAtual, novoHeader]);
               }}
             >
-              <i className="fas fa-plus mr-2"></i>Incluir menu
+              <i className="fas fa-plus mr-2"></i>Novo
             </button>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={() => setMenuAtual(menuDefault)}
             >
-              <i className="fas fa-redo-alt mr-2"></i>Restaurar padrão
+              <i className="fas fa-redo-alt mr-2"></i>Padrão
+            </button>
+          </div>
+          <div className="btn-group">
+            <button
+              className="btn btn-success btn-sm"
+              onClick={() => {
+                localStorage.setItem("menuData", JSON.stringify(menuAtual));
+                setTimeout(() => {
+                  window.location.reload();
+                }, 100);
+              }}
+            >
+              <i className="fas fa-save mr-2"></i>Salvar
             </button>
             <button
               className="btn btn-danger btn-sm"
@@ -535,23 +549,14 @@ function Config() {
                   )
                 )
                   setMenuAtual([]);
+                localStorage.removeItem("menuData");
+                setTimeout(() => {
+                  window.location.reload();
+                }, 100);
               }}
               disabled={!menuAtual.length}
             >
-              <i className="fas fa-times mr-2"></i>Excluir menus
-            </button>
-          </div>
-          <div>
-            <button
-              className="btn btn-success btn-sm"
-              onClick={() => {
-                localStorage.setItem("menuData", JSON.stringify(menuAtual));
-                setTimeout(() => {
-                  window.location.reload();
-                }, 1000);
-              }}
-            >
-              <i className="fas fa-save mr-2"></i>Salvar configurações
+              <i className="fas fa-times mr-2"></i>Excluir todos
             </button>
           </div>
         </div>
@@ -713,7 +718,6 @@ function Config() {
                                     }}
                                   >
                                     <i className="fas fa-times mr-2"></i>Excluir
-                                    menu
                                   </button>
                                 </div>
                               )}
@@ -811,7 +815,7 @@ function Config() {
                     localStorage.setItem("userData", JSON.stringify(user));
                     setTimeout(() => {
                       window.location.reload();
-                    }, 1000);
+                    }, 100);
                   }}
                 >
                   <i className="fas fa-save mr-2"></i>Salvar alterações
@@ -833,9 +837,7 @@ function Config() {
   };
 
   const TabSistema = () => {
-    const systemData = JSON.parse(localStorage.getItem("systemData"));
-    const [sistema, setSistema] = useState(systemData);
-    // const [previewLogo, setPreviewLogo] = useState();
+    const [sistema, setSistema] = useState(appData());
     const [fileName, setFileName] = useState();
 
     const handleLogoChange = (e) => {
@@ -875,7 +877,7 @@ function Config() {
                         }}
                         onChange={(e) => {
                           const { value } = e.target;
-                          if (value === "default") setSistema(systemDefault);
+                          if (value === "default") setSistema(appDefault);
                           else
                             setSistema({ ...sistema, name: "", style: value });
                         }}
@@ -899,20 +901,22 @@ function Config() {
                 />
               </Grid>
               <Grid cols="12 5" classGrid=" mt-4">
-                <div className="form-check">
+                <div className="custom-control custom-switch">
                   <input
                     type="checkbox"
-                    className="form-check-input"
-                    id="exampleCheck1"
-                    checked={sistema.logoCircle}
-                    style={{ cursor: "pointer" }}
+                    id="darkModeSwitch"
+                    className="custom-control-input"
+                    checked={sistema.darkMode}
                     onChange={(e) => {
                       const { checked } = e.target;
-                      setSistema({ ...sistema, logoCircle: checked });
+                      setSistema({ ...sistema, darkMode: checked });
                     }}
                   />
-                  <label className="form-check-label" htmlFor="exampleCheck1">
-                    Logo circular
+                  <label
+                    className="custom-control-label"
+                    htmlFor="darkModeSwitch"
+                  >
+                    Modo escuro
                   </label>
                 </div>
               </Grid>
@@ -937,6 +941,22 @@ function Config() {
                     </label>
                   </div>
                 </div>
+                <div className="form-check mt-2">
+                  <input
+                    type="checkbox"
+                    className="form-check-input"
+                    id="exampleCheck1"
+                    checked={sistema.logoCircle}
+                    style={{ cursor: "pointer" }}
+                    onChange={(e) => {
+                      const { checked } = e.target;
+                      setSistema({ ...sistema, logoCircle: checked });
+                    }}
+                  />
+                  <label className="form-check-label" htmlFor="exampleCheck1">
+                    Logo circular
+                  </label>
+                </div>
               </Grid>
             </Row>
           </Grid>
@@ -956,10 +976,10 @@ function Config() {
         <button
           className="btn btn-success"
           onClick={() => {
-            localStorage.setItem("systemData", JSON.stringify(sistema));
+            localStorage.setItem("appData", JSON.stringify(sistema));
             setTimeout(() => {
               window.location.reload();
-            }, 1000);
+            }, 100);
           }}
         >
           <i className="fas fa-save mr-2"></i>Salvar configurações
@@ -969,22 +989,24 @@ function Config() {
   };
 
   const TabHubs = () => {
+    const hubsData = JSON.parse(localStorage.getItem("hubsData")) || [];
+    const [hubs, setHubs] = useState(hubsData);
+
     const initHub = {
       name: "",
       icon: "",
       color: "bg-primary",
       order: 1,
+      route: "",
     };
     const [hub, setHub] = useState(initHub);
-
-    const [hubs, setHubs] = useState([]);
 
     const fields = [
       { key: "id", text: "#" },
       { key: "name", text: "Nome" },
       { key: "icon", text: "Icone", type: "icon" },
       { key: "color", text: "Cor", type: "color" },
-      { key: "order", text: "Ordem" },
+      { key: "route", text: "Rota" },
     ];
 
     const RowsTableHubs = () => {
@@ -1020,6 +1042,7 @@ function Config() {
                     if (
                       window.confirm("Tem certeza que deseja remover o item?")
                     ) {
+                      handleHub(row, "excluir");
                     }
                   }}
                 >
@@ -1033,10 +1056,14 @@ function Config() {
 
     const handleHub = (item, acao) => {
       const novosHubs = [...hubs];
+      const hubIndex = novosHubs.findIndex(({ id }) => id === item.id);
       switch (acao) {
         case "editar":
-          const hubIndex = hubs.findIndex(({ id }) => id === item.id);
           novosHubs.splice(hubIndex, 1, item);
+          setHubs(novosHubs);
+          break;
+        case "excluir":
+          novosHubs.splice(hubIndex, 1);
           setHubs(novosHubs);
           break;
         default:
@@ -1048,13 +1075,14 @@ function Config() {
           setHubs([...novosHubs, novoHub]);
           break;
       }
+      localStorage.setItem("hubsData", JSON.stringify(novosHubs));
       setHub(initHub);
     };
 
     return (
-      <FormGroup>
+      <Grid>
         <Row>
-          <Grid cols="12 4">
+          <Grid cols="12 3">
             <InputLabel
               inputClass="form-control-sm"
               label="Nome"
@@ -1067,7 +1095,7 @@ function Config() {
               }}
             />
           </Grid>
-          <Grid cols="12 4">
+          <Grid cols="12 3">
             <InputLabel
               inputClass="form-control-sm"
               label="Ícone"
@@ -1077,6 +1105,19 @@ function Config() {
               onChange={(e) => {
                 const { value } = e.target;
                 setHub({ ...hub, icon: value });
+              }}
+            />
+          </Grid>
+          <Grid cols="12 3">
+            <InputLabel
+              inputClass="form-control-sm"
+              label="Rota"
+              type="text"
+              placeholder="Informe a rota do Hub"
+              value={hub.route}
+              onChange={(e) => {
+                const { value } = e.target;
+                setHub({ ...hub, route: value });
               }}
             />
           </Grid>
@@ -1097,7 +1138,7 @@ function Config() {
               ))}
             </select>
           </Grid>
-          <Grid cols="12 2">
+          <Grid cols="12 1">
             <label>Ordem</label>
             <select
               className="form-control form-control-sm"
@@ -1123,30 +1164,46 @@ function Config() {
             </select>
           </Grid>
         </Row>
-        <Row>
-          <Grid cols="12 3">
-            <div className="btn-group">
-              <button
-                className="btn btn-sm btn-info"
-                disabled={!hub.name || !hub.icon}
-                onClick={() => handleHub(hub, hub.id ? "editar" : "inserir")}
-              >
-                <i className={`fas fa-${hub.id ? "save" : "plus"} mr-2`}></i>
-                {hub.id ? "Salvar" : "Incluir"}
-              </button>
-              <button
-                disabled={!hub.name}
-                className="btn btn-sm btn-secondary"
-                onClick={() => setHub(initHub)}
-              >
-                <i className="fas fa-eraser mr-2"></i>Limpar
-              </button>
-            </div>
-          </Grid>
-        </Row>
+        <Grid>
+          <div className="btn-group">
+            <button
+              className="btn btn-sm btn-success"
+              disabled={!hub.name || !hub.icon || !hub.route}
+              onClick={() => handleHub(hub, hub.id ? "editar" : "inserir")}
+            >
+              <i className={`fas fa-${hub.id ? "check" : "plus"} mr-2`}></i>
+              {hub.id ? "Salvar" : "Incluir"}
+            </button>
+            <button
+              disabled={!hub.name}
+              className="btn btn-sm btn-secondary"
+              onClick={() => setHub(initHub)}
+            >
+              <i className="fas fa-eraser mr-2"></i>Limpar
+            </button>
+            <button
+              disabled={!hubs.length}
+              className="btn btn-sm btn-danger"
+              onClick={() => {
+                if (
+                  window.confirm(
+                    "Tem certeza que deseja excluir todos os hubs?"
+                  )
+                )
+                  localStorage.removeItem("hubsData");
+                setHubs([]);
+                setTimeout(() => {
+                  window.location.reload();
+                }, 100);
+              }}
+            >
+              <i className="fas fa-times mr-2"></i>Excluir todos
+            </button>
+          </div>
+        </Grid>
         <hr />
         <TabelaHubs {...{ fields }} rows={<RowsTableHubs />} />
-      </FormGroup>
+      </Grid>
     );
   };
 

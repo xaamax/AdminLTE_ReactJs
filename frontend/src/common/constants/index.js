@@ -1,16 +1,34 @@
 import LogoDefault from "../../assets/images/logo_default.png"
 import Logo from "../../assets/images/logo.png"
 
+export const appData = () => {
+    return JSON.parse(localStorage.getItem("appData")) || "";
+};
+
+
+export const userData = () => {
+    return JSON.parse(localStorage.getItem("userData")) || "";
+};
+
+export const hubsData = () => {
+    return JSON.parse(localStorage.getItem("hubsData")) || [];
+};
+
+export const menuData = () => {
+    return JSON.parse(localStorage.getItem("menuData")) || [];
+};
+
 export { LogoDefault, Logo };
 
-export const systemDefault = {
+export const appDefault = {
     name: "MyApp",
+    darkMode: true,
     logoCircle: false,
     style: "default"
 }
 
 
-export const userData = {
+export const userDefault = {
     nome: "Max Fernandes de Souza",
     email: "xaamax@gmail.com",
 };

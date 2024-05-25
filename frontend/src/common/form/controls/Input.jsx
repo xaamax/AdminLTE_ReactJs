@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Grid from "../../layouts/Grid";
+import FormGroup from "../FormGroup";
 
 export const InputLabel = ({
   label,
@@ -13,13 +14,13 @@ export const InputLabel = ({
   disabled
 }) => {
   return (
-    <div>
+    <FormGroup>
       <label className={labelClass}>{label}</label>
       <input
         className={`form-control ${inputClass || ""}`}
         {...{ type, value, placeholder, onChange, defaultValue, disabled }}
         />
-    </div>
+    </FormGroup>
   );
 };
 
@@ -36,7 +37,7 @@ export const InputGroupAppend = ({
   onChange,
 }) => {
   return (
-    <div>
+    <FormGroup>
       <label>{label}</label>
       <div className="input-group">
         <input
@@ -63,6 +64,6 @@ export const InputGroupAppend = ({
           )}
         </div>
       </div>
-    </div>
+    </FormGroup>
   );
 };

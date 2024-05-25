@@ -2,9 +2,9 @@ import React from "react";
 import Menu from "./Menu";
 import Logo from "../../assets/images/logo.png";
 import LogoDefault from "../../assets/images/logo_default.png";
+import { appData } from "../constants";
 
-const { name, logoCircle, style } =
-  JSON.parse(localStorage.getItem("systemData")) || "";
+const { name, logoCircle, style } = appData();
 
 const SideBar = () => (
   <aside className="main-sidebar sidebar-dark-primary elevation-4">

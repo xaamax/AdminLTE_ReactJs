@@ -1,8 +1,9 @@
 import React from "react";
 import Gravatar from "react-gravatar";
+import { userData } from "../constants";
 
 function Header({ handleDarkMode, darkMode }) {
-  const { nome, email } = JSON.parse(localStorage.getItem("userData"));
+  const { nome, email } = userData();
 
   return (
     <header>
