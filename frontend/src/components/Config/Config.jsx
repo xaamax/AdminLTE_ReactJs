@@ -23,10 +23,17 @@ import {
 import Gravatar from "react-gravatar";
 import { Table as TabelaHubs } from "../../common/layouts/Table";
 
-import { appData, menuData } from "../../common/constants/index";
+import {
+  appData,
+  menuData,
+  userData,
+  hubsData,
+  routesData,
+} from "../../common/constants/index";
 
 const tabsMenu = [
   { label: "Sistema", icon: "wrench", target: "tabSistema", active: true },
+  { label: "Rotas", icon: "directions", target: "tabRotas", active: false },
   { label: "Menus", icon: "bars", target: "tabMenu", active: false },
   { label: "Hubs", icon: "th", target: "tabHubs", active: false },
   { label: "Usuário", icon: "user", target: "tabUsuario", active: false },
@@ -111,7 +118,7 @@ function Config() {
         { key: "label", text: "Label" },
         { key: "icon", text: "Icone", type: "icon" },
         { key: "style", text: "Estilo" },
-        { key: "route", text: "Rota" },
+        { key: "path", text: "Caminho" },
         { key: "visible", text: "Visível", type: "boolean" },
       ];
 
@@ -121,7 +128,7 @@ function Config() {
         icon: "",
         visible: true,
         order: 1,
-        route: "",
+        path: "",
         childrens: [],
       };
 
@@ -179,11 +186,7 @@ function Config() {
               if (item.belongTreeview) {
                 const updatedChild = {
                   ...novoMenu[menuIndex].items[itemIndex].childrens[childIndex],
-                  label: itemData.label,
-                  icon: itemData.icon,
-                  visible: itemData.visible,
-                  order: itemData.order,
-                  route: itemData.route,
+                  ...itemData,
                 };
 
                 novoMenu[menuIndex].items[itemIndex].childrens.splice(
@@ -224,12 +227,8 @@ function Config() {
 
                         const novoItem = {
                           id: novoIdChild + 1,
-                          label: itemData.label,
-                          icon: itemData.icon,
                           style: "link",
-                          visible: itemData.visible,
-                          order: itemData.order,
-                          route: itemData.route,
+                          ...itemData,
                         };
 
                         return {
@@ -370,18 +369,20 @@ function Config() {
               <FormGroup>
                 <Row>
                   <Grid cols="12 6">
-                    <InputLabel
-                      label="Rota"
-                      type="text"
-                      inputClass="form-control-sm"
-                      placeholder="Informe a rota"
-                      disabled={item.style === "treeview"}
-                      value={item.route || ""}
+                  <label>Rota</label>
+                  <select
+                      className="form-control form-control-sm"
+                      value={item.path}
                       onChange={(e) => {
                         const { value } = e.target;
-                        setItem({ ...item, route: value });
+                        setItem({ ...item, path: value });
                       }}
-                    />
+                    >
+                      <option value="">-- Selecione --</option>
+                      {routesData().map(({ id, path}) => (
+                        <option key={id} value={path}>{path}</option>
+                      ))}
+                    </select>
                   </Grid>
                   <Grid cols="12 3">
                     <label>Ordem</label>
@@ -442,7 +443,7 @@ function Config() {
                         }}
                         onChange={(e) => {
                           const { value } = e.target;
-                          setItem({ ...item, style: value, route: "#" });
+                          setItem({ ...item, style: value, path: "#" });
                         }}
                       />
                       <label className="form-check-label">{label}</label>
@@ -506,7 +507,7 @@ function Config() {
           <div className="btn-group">
             <button
               type="button"
-              className="btn btn-primary btn-sm"
+              className="btn btn-info btn-sm"
               onClick={() => {
                 const ultimoKey =
                   menuAtual.length > 0 ? menuAtual[menuAtual.length - 1].id : 0;
@@ -518,7 +519,7 @@ function Config() {
                 setMenuAtual([...menuAtual, novoHeader]);
               }}
             >
-              <i className="fas fa-plus mr-2"></i>Novo
+              <i className="fas fa-plus mr-2"></i>Incluir
             </button>
             <button
               type="button"
@@ -531,6 +532,7 @@ function Config() {
           <div className="btn-group">
             <button
               className="btn btn-success btn-sm"
+              disabled={!menuAtual.length}
               onClick={() => {
                 localStorage.setItem("menuData", JSON.stringify(menuAtual));
                 setTimeout(() => {
@@ -550,9 +552,6 @@ function Config() {
                 )
                   setMenuAtual([]);
                 localStorage.removeItem("menuData");
-                setTimeout(() => {
-                  window.location.reload();
-                }, 100);
               }}
               disabled={!menuAtual.length}
             >
@@ -741,14 +740,12 @@ function Config() {
       nome: "",
     };
 
-    const [user, setUser] = useState(
-      JSON.parse(localStorage.getItem("userData"))
-    );
+    const [user, setUser] = useState(userData);
 
     return (
       <div className="container-fluid">
         <div className="row">
-          <div className="col-md-3 pt-1 mb-3">
+          <div className="col-md-4 pt-1 mb-3">
             <div className="card mb-3">
               <div className="card-header bg-light"></div>
               <div className="d-flex align-self-center pt-3">
@@ -776,7 +773,7 @@ function Config() {
               <div className="card-footer"></div>
             </div>
           </div>
-          <div className="col-lg-9 mb-3 p-4">
+          <div className="col-lg-8 mb-3 p-4">
             <div className="row">
               <div className="col-12">
                 <h4 className="border-bottom">Dados</h4>
@@ -989,7 +986,6 @@ function Config() {
   };
 
   const TabHubs = () => {
-    const hubsData = JSON.parse(localStorage.getItem("hubsData")) || [];
     const [hubs, setHubs] = useState(hubsData);
 
     const initHub = {
@@ -997,16 +993,16 @@ function Config() {
       icon: "",
       color: "bg-primary",
       order: 1,
-      route: "",
+      path: "",
     };
-    const [hub, setHub] = useState(initHub);
+    const [hub, setHub] = useState({ ...initHub });
 
     const fields = [
       { key: "id", text: "#" },
       { key: "name", text: "Nome" },
       { key: "icon", text: "Icone", type: "icon" },
       { key: "color", text: "Cor", type: "color" },
-      { key: "route", text: "Rota" },
+      { key: "path", text: "Caminho" },
     ];
 
     const RowsTableHubs = () => {
@@ -1042,7 +1038,7 @@ function Config() {
                     if (
                       window.confirm("Tem certeza que deseja remover o item?")
                     ) {
-                      handleHub(row, "excluir");
+                      saveHub(row, "excluir");
                     }
                   }}
                 >
@@ -1054,7 +1050,7 @@ function Config() {
         ));
     };
 
-    const handleHub = (item, acao) => {
+    const saveHub = (item, acao) => {
       const novosHubs = [...hubs];
       const hubIndex = novosHubs.findIndex(({ id }) => id === item.id);
       switch (acao) {
@@ -1075,7 +1071,6 @@ function Config() {
           setHubs([...novosHubs, novoHub]);
           break;
       }
-      localStorage.setItem("hubsData", JSON.stringify(novosHubs));
       setHub(initHub);
     };
 
@@ -1114,10 +1109,10 @@ function Config() {
               label="Rota"
               type="text"
               placeholder="Informe a rota do Hub"
-              value={hub.route}
+              value={hub.path}
               onChange={(e) => {
                 const { value } = e.target;
-                setHub({ ...hub, route: value });
+                setHub({ ...hub, path: value });
               }}
             />
           </Grid>
@@ -1164,45 +1159,257 @@ function Config() {
             </select>
           </Grid>
         </Row>
-        <Grid>
-          <div className="btn-group">
+        <Grid classGrid=" d-flex justify-content-between">
+          <Grid>
+            <div className="btn-group">
+              <button
+                className="btn btn-sm btn-info"
+                disabled={!hub.name || !hub.icon || !hub.path}
+                onClick={() => saveHub(hub, hub.id ? "editar" : "inserir")}
+              >
+                <i className={`fas fa-${hub.id ? "check" : "plus"} mr-2`}></i>
+                {hub.id ? "Alterar" : "Incluir"}
+              </button>
+              <button
+                disabled={!hub.name}
+                className="btn btn-sm btn-secondary"
+                onClick={() => setHub(initHub)}
+              >
+                <i className="fas fa-eraser mr-2"></i>Limpar
+              </button>
+              <button
+                disabled={!hubs.length}
+                className="btn btn-sm btn-danger"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Tem certeza que deseja excluir todos os hubs?"
+                    )
+                  )
+                    localStorage.removeItem("hubsData");
+                  setHubs([]);
+                }}
+              >
+                <i className="fas fa-times mr-2"></i>Excluir todos
+              </button>
+            </div>
+          </Grid>
+          <Grid>
             <button
               className="btn btn-sm btn-success"
-              disabled={!hub.name || !hub.icon || !hub.route}
-              onClick={() => handleHub(hub, hub.id ? "editar" : "inserir")}
-            >
-              <i className={`fas fa-${hub.id ? "check" : "plus"} mr-2`}></i>
-              {hub.id ? "Salvar" : "Incluir"}
-            </button>
-            <button
-              disabled={!hub.name}
-              className="btn btn-sm btn-secondary"
-              onClick={() => setHub(initHub)}
-            >
-              <i className="fas fa-eraser mr-2"></i>Limpar
-            </button>
-            <button
               disabled={!hubs.length}
-              className="btn btn-sm btn-danger"
               onClick={() => {
-                if (
-                  window.confirm(
-                    "Tem certeza que deseja excluir todos os hubs?"
-                  )
-                )
-                  localStorage.removeItem("hubsData");
-                setHubs([]);
+                localStorage.setItem("hubsData", JSON.stringify(hubs));
                 setTimeout(() => {
                   window.location.reload();
                 }, 100);
               }}
             >
-              <i className="fas fa-times mr-2"></i>Excluir todos
+              <i className="fas fa-save mr-2"></i>Salvar
             </button>
-          </div>
+          </Grid>
         </Grid>
         <hr />
         <TabelaHubs {...{ fields }} rows={<RowsTableHubs />} />
+      </Grid>
+    );
+  };
+
+  const TabRotas = () => {
+    const [rotas, setRotas] = useState(routesData);
+
+    const initRota = {
+      path: "",
+      component: "",
+      hasParam: false,
+    };
+    const [rota, setRota] = useState({ ...initRota });
+
+    const fields = [
+      { key: "id", text: "#" },
+      { key: "path", text: "Caminho" },
+      { key: "component", text: "Componente" },
+      { key: "param", text: "Parâmetro" },
+    ];
+
+    const saveRota = (item, acao) => {
+      const novasRotas = [...rotas];
+      const rotaIndex = novasRotas.findIndex(({ id }) => id === item.id);
+      switch (acao) {
+        case "editar":
+          novasRotas.splice(rotaIndex, 1, item);
+          setRotas(novasRotas);
+          break;
+        case "excluir":
+          novasRotas.splice(rotaIndex, 1);
+          setRotas(novasRotas);
+          break;
+        default:
+          const rotaID = rotas.length > 0 ? rotas[rotas.length - 1].id : 0;
+          const novoRota = {
+            id: rotaID + 1,
+            ...item,
+          };
+          setRotas([...novasRotas, novoRota]);
+          break;
+      }
+      setRota(initRota);
+    };
+
+    const RowsTableRoutes = () => {
+      return rotas.map((row, index) => (
+        <tr key={index}>
+          {fields.map(({ key }, index) => (
+            <td key={index}>{row[key]}</td>
+          ))}
+          <td className="align-middle">
+            <div className="btn-group">
+              <button
+                className="btn btn-sm btn-warning"
+                onClick={() => {
+                  setRota({ ...row });
+                }}
+              >
+                <i className="fas fa-edit"></i>
+              </button>
+              <button
+                className="btn btn-sm btn-danger"
+                onClick={() => {
+                  if (
+                    window.confirm("Tem certeza que deseja excluir a rota?")
+                  ) {
+                    saveRota(row, "excluir");
+                  }
+                }}
+              >
+                <i className="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      ));
+    };
+
+    return (
+      <Grid>
+        <Row>
+          <Grid cols="12 3">
+            <InputLabel
+              inputClass="form-control-sm"
+              label="Caminho"
+              type="text"
+              placeholder="Informe o caminho"
+              value={rota.path}
+              onChange={(e) => {
+                const { value } = e.target;
+                setRota({ ...rota, path: value });
+              }}
+            />
+          </Grid>
+          <Grid cols="12 3">
+            <InputLabel
+              inputClass="form-control-sm"
+              label="Componente"
+              type="text"
+              placeholder="Informe o componente"
+              value={rota.component}
+              onChange={(e) => {
+                const { value } = e.target;
+                setRota({ ...rota, component: value });
+              }}
+            />
+          </Grid>
+          {rota.hasParam && (
+            <Grid cols="12 3">
+              <InputLabel
+                inputClass="form-control-sm"
+                label="Parâmetro"
+                type="text"
+                placeholder="Informe o parâmetro"
+                value={rota.param}
+                onChange={(e) => {
+                  const { value } = e.target;
+                  setRota({ ...rota, param: value });
+                }}
+              />
+            </Grid>
+          )}
+          <Grid cols="12 3">
+            <div className="form-check ml-2 mt-4">
+              <input
+                type="checkbox"
+                className="form-check-input"
+                style={{ cursor: "pointer" }}
+                checked={rota.hasParam}
+                onChange={(e) => {
+                  const { checked } = e.target;
+                  setRota(() => {
+                    if (checked) {
+                      return { ...rota, param: "", hasParam: checked };
+                    } else {
+                      const { param, ...rest } = rota;
+                      return { ...rest, hasParam: checked };
+                    }
+                  });
+                }}
+              />
+              <label className="font-weight-bold">Incluir parâmetro</label>
+            </div>
+          </Grid>
+        </Row>
+        <Grid classGrid=" d-flex justify-content-between">
+          <Grid>
+            <div className="btn-group">
+              <button
+                className="btn btn-sm btn-info"
+                disabled={!rota.path || !rota.component}
+                onClick={() => saveRota(rota, rota.id ? "editar" : "inserir")}
+              >
+                <i className={`fas fa-${rota.id ? "check" : "plus"} mr-2`}></i>
+                {rota.id ? "Alterar" : "Incluir"}
+              </button>
+              <button
+                disabled={!rota.path || !rota.component}
+                className="btn btn-sm btn-secondary"
+                onClick={() => setRota(initRota)}
+              >
+                <i className="fas fa-eraser mr-2"></i>Limpar
+              </button>
+              <button
+                disabled={!rotas.length}
+                className="btn btn-sm btn-danger"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Tem certeza que deseja excluir todas as rotas?"
+                    )
+                  ) {
+                    localStorage.removeItem("routesData");
+                    setRotas([]);
+                  }
+                }}
+              >
+                <i className="fas fa-times mr-2"></i>Excluir todos
+              </button>
+            </div>
+          </Grid>
+          <Grid>
+            <button
+              className="btn btn-sm btn-success"
+              disabled={!rotas.length}
+              onClick={() => {
+                localStorage.setItem("routesData", JSON.stringify(rotas));
+                setTimeout(() => {
+                  window.location.reload();
+                }, 100);
+              }}
+            >
+              <i className="fas fa-save mr-2"></i>Salvar
+            </button>
+          </Grid>
+        </Grid>
+        <hr />
+        <TabelaHubs {...{ fields }} rows={<RowsTableRoutes />} />
       </Grid>
     );
   };
@@ -1233,6 +1440,7 @@ function Config() {
                 active={tabActive === target ?? false}
               >
                 {tabActive === "tabSistema" && <TabSistema />}
+                {tabActive === "tabRotas" && <TabRotas />}
                 {tabActive === "tabMenu" && <TabMenu />}
                 {tabActive === "tabHubs" && <TabHubs />}
                 {tabActive === "tabUsuario" && <TabUsuario />}

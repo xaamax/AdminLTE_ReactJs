@@ -10,17 +10,17 @@ const Menu = () => {
       {header && (
         <li className="nav-header">{header}</li>
       )}
-      {items.filter(({ visible }) => visible).map(({ label, icon, route, childrens }, idx) => {
+      {items.filter(({ visible }) => visible).map(({ label, icon, path, childrens }, idx) => {
         return (
           <React.Fragment key={idx}>
           {childrens.length > 0 && (
-            <MenuTree label={label} icon={icon} path={route} >
-              {childrens.filter(({ visible }) => visible).map(({ label, icon, route }, i) => (
-                <MenuItem key={i} {...{ label, icon, route }} />
+            <MenuTree {...{label, icon, path }}>
+              {childrens.filter(({ visible }) => visible).map(({ label, icon, path }, i) => (
+                <MenuItem key={i} {...{ label, icon, path }} />
               ))}
             </MenuTree>
           )}
-          {!childrens.length && <MenuItem {...{label, icon, route }} />}
+          {!childrens.length && <MenuItem {...{label, icon, path }} />}
         </React.Fragment>
         )
       })}

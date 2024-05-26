@@ -1,16 +1,22 @@
 /* eslint-disable import/no-anonymous-default-export */
 import React from 'react';
-import Home from '../components/Home/Home';
-import Config from '../components/Config/Config';
-import NotFound from '../components/NotFound';
+import { Home, Config, NotFound } from "./modules"
 import { Route, Routes } from 'react-router-dom';
+import { routesData } from '../common/constants';
 
 export default () => {
-  return(
-      <Routes>
+  return (
+    <Routes>
       <Route path='/' exact element={<Home />} />
       <Route path='/config' exact element={<Config />} />
+      {routesData().map(({ id, path, component }) => (
+        <Route
+          key={id}
+          path={path}
+          element={React.createElement(require(`../components/${component}/${component}`).default)}
+        />
+      ))}
       <Route path='*' element={<NotFound />} />
-      </Routes>
+    </Routes>
   );
 }

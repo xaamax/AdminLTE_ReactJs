@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Gravatar from "react-gravatar";
 import { userData } from "../constants";
 
 function Header({ handleDarkMode, darkMode }) {
-  const { nome, email } = userData();
+  
+  const [usuario, setUsuario] = useState({});
+
+  useEffect(() => {
+    setUsuario(userData)
+  },[])
 
   return (
     <header>
@@ -48,17 +53,17 @@ function Header({ handleDarkMode, darkMode }) {
               data-toggle="dropdown"
             >
               <Gravatar
-                email={email}
+                email={usuario.email || ""}
                 className="user-image img-circle elevation-2"
               />
-              <span className="hidden-xs d-none d-sm-inline-block">{nome}</span>
+              <span className="hidden-xs d-none d-sm-inline-block">{usuario.nome}</span>
             </a>
             <ul className="dropdown-menu dropdown-menu-lg dropdown-menu-right">
               <li className="user-header">
-                <Gravatar email={email} className="img-circle elevation-2" />
+                <Gravatar email={usuario.email || ""} className="img-circle elevation-2" />
                 <p>
-                  {nome}
-                  <small>{email}</small>
+                  {usuario.nome}
+                  <small>{usuario.email}</small>
                 </p>
               </li>
               <li className="user-footer">

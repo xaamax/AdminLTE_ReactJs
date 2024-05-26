@@ -18,11 +18,15 @@ export const menuData = () => {
     return JSON.parse(localStorage.getItem("menuData")) || [];
 };
 
+export const routesData = () => {
+    return JSON.parse(localStorage.getItem("routesData")) || [];
+};
+
 export { LogoDefault, Logo };
 
 export const appDefault = {
     name: "MyApp",
-    darkMode: true,
+    darkMode: false,
     logoCircle: false,
     style: "default"
 }
@@ -39,8 +43,8 @@ export const menuDefault = [
         id: 1,
         header: "MENU",
         items: [
-            { id: 1, label: "Link 1", style: "link", icon: "th", visible: true, order: 1, route: "/", childrens: [] },
-            { id: 2, label: "Link 2", style: "link", icon: "th", visible: true, order: 2, route: "/", childrens: [] },
+            { id: 1, label: "Link 1", style: "link", icon: "th", visible: true, order: 1, path: "/", childrens: [] },
+            { id: 2, label: "Link 2", style: "link", icon: "th", visible: true, order: 2, path: "/", childrens: [] },
         ],
     },
     {
@@ -54,10 +58,10 @@ export const menuDefault = [
                 style: "treeview",
                 visible: true,
                 order: 1,
-                route: "#",
+                path: "#",
                 childrens: [
-                    { id: 1, label: "Link 3", style: "link", icon: "file", visible: true, order: 1, route: "/" },
-                    { id: 2, label: "Link 4", style: "link", icon: "copy", visible: true, order: 1, route: "/" },
+                    { id: 1, label: "Link 3", style: "link", icon: "file", visible: true, order: 1, path: "/" },
+                    { id: 2, label: "Link 4", style: "link", icon: "copy", visible: true, order: 1, path: "/" },
                 ],
             },
         ],
